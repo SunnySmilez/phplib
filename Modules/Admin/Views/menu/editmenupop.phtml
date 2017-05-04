@@ -1,0 +1,63 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="addModalLabel">编辑菜单</h4>
+</div>
+<div class="modal-body">
+    <form id="add-left-menu-form">
+        <div class="form-group input-group  input-control">
+            <span class="input-group-addon">菜单名&nbsp;</span>
+            <input type="text" class="form-control" id="x-lname" value="<?php echo $mname; ?>" name="mname" placeholder="">
+            <input type="hidden" name="mid" value="<?php echo $mid; ?>">
+        </div>
+        <span class="span-name" id="exist-tips"></span>
+
+        <div class="form-group input-group  input-control">
+            <span class="input-group-addon">简介&nbsp;&nbsp;</span>
+            <textarea class="form-control" id="x-description" name="description" rows="3"><?php echo $description; ?></textarea>
+        </div>
+        <div class="form-group input-group  input-control">
+            <span class="input-group-addon">排序&nbsp;</span>
+            <input type="text" class="form-control" id="x-order" name="order" placeholder="" value="<?php echo $order; ?>">
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <span class="tips" id="atip"></span>
+    <button type="button" id="x-cancel" class="btn btn-default" data-dismiss="modal">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+    <button type="button" id="x-add" class="btn btn-primary">&nbsp;&nbsp;确认&nbsp;&nbsp;</button>
+</div>
+<script>
+$(document).ready(function() {
+    $('#x-add').click(function() {
+        var lname = $('#x-lname');
+        var order = $('#x-order');
+        if (!lname.val().trim()) {
+            alert('请填写菜单名');
+            lname.focus();
+            return;
+        }
+
+        if (!order.val().trim()) {
+            alert('请填写排序');
+            order.focus();
+            return;
+        }
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url:"<?php echo APP_ADMIN_PATH; ?>/menu/savemenu",
+            data:$('#add-left-menu-form').serialize(),
+            dataType: 'json',
+            error: function(data) {
+                alert('系统异常，请稍后再试！');
+            },
+            success: function(data) {
+                alert(data.msg);
+                if(data.retcode == 2000000) {
+                    refresh();
+                }
+            }
+        });
+    });
+});
+</script>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>用户组管理</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+</head>
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <?= $menuview; ?>
+
+            <!-- 内容区域 -->
+            <div class="right_col" role="main">
+
+                <div class="page-title clearfix">
+                    <div class="title_left">
+                        <h3>用户组管理</h3>
+                    </div>
+                    <div class="title_right">
+                        <button id="add" type="submit" class="btn btn-success pull-right">新建</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <form class="form-inline">
+                                <div class="form-group form-group-sm">
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="组名"/>
+                                </div>
+                                <button class="btn btn-primary btn-sm">搜索</button>
+                            </form>
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table" id="group-list"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /内容区域 -->
+
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    Welcome to New Admin ！
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+    var form = $("form");
+    var groupList = $("#group-list");
+    var queryUrl = url("/group/queryGroupList");
+
+    $('#add').click(function () {
+        openDialog('Modal', url('/group/editPop'));
+    });
+
+    form.on('submit', function () {
+        groupList.DataTable().ajax.url(queryUrl + '?' + form.serialize()).load();
+
+        return false;
+    });
+
+    groupList.DataTable({
+        serverSide: true,
+        ajax: queryUrl + "?" + form.serialize(),
+        ordering: false,
+        columns: [
+            {title: '组名', data: 'gname'},
+            {title: '描述', data: 'description'},
+            {
+                title: "操作", "data": "gid", render: function (gid, type, row) {
+                var button = '';
+
+                button += "<button name='edit' class='btn btn-primary btn-xs' gid='" + gid + "'>编辑</button>";
+                button += "<button name='user-list' class='btn btn-primary btn-xs' gid='" + gid + "'>成员</button>";
+                button += "<button name='acl' class='btn btn-primary btn-xs'  gid='" + gid + "'>权限</button>";
+                button += "<button name='del' class='btn btn-primary btn-xs' gid='" + gid + "'>删除</button>";
+
+                return button;
+            }
+            }
+        ]
+    });
+
+    groupList.on('click', "button[name='edit']", function () {
+        openDialog('Modal', url('/group/editPop/?gid=' + $(this).attr('gid')));
+    });
+
+    groupList.on('click', "button[name='user-list']", function () {
+        jumpUrl(url("/group/userList?gid=" + $(this).attr('gid')));
+    });
+
+    groupList.on('click', "button[name='acl']", function () {
+        jumpUrl(url("/acl/index?gid=" + $(this).attr('gid')));
+    });
+
+    groupList.on('click', "button[name='del']", function () {
+        if (!confirm('您确定删除吗？')) {
+            return;
+        }
+
+        $.get(url('/group/del'), {gid: $(this).attr('gid')}, function (json) {
+            if (json.retcode == 2000000) {
+                refresh();
+            } else {
+                alert(json.msg);
+            }
+        });
+    });
+});
+</script>
+</body>
+
+</html>
+
+
+

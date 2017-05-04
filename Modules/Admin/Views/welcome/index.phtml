@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>
+        <?= ADMIN_SYS_NAME ?>
+    </title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+</head>
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <?php echo $menuview; ?>
+            <!-- 内容区域 -->
+            <div class="right_col" role="main">
+                <div class="row">
+                    <div class="indextext">
+                        <h2>欢迎使用</h2>
+                        <p style="font-size:18px;">
+                            <?php echo $_SESSION['name'].'，你好！'; ?>
+                        </p>
+                        <div class="alert alert-info" role="alert">其他信息暂未开放！</div>
+                    </div>
+                </div>
+            </div>
+            <!-- /内容区域 -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    Welcome to New Admin ！
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+    <script>
+    $(document).ready(function() {
+
+        var options = {
+            legend: false,
+            responsive: false
+        };
+        new Chart(document.getElementById("canvas1"), {
+            type: 'doughnut',
+            tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+            data: {
+                labels: [
+                    "Symbian",
+                    "Blackberry",
+                    "Other",
+                    "Android",
+                    "IOS"
+                ],
+                datasets: [{
+                    data: [15, 20, 30, 10, 30],
+                    backgroundColor: [
+                        "#BDC3C7",
+                        "#9B59B6",
+                        "#E74C3C",
+                        "#26B99A",
+                        "#3498DB"
+                    ],
+                    hoverBackgroundColor: [
+                        "#CFD4D8",
+                        "#B370CF",
+                        "#E95E4F",
+                        "#36CAAB",
+                        "#49A9EA"
+                    ]
+                }]
+            },
+            options: options
+        });
+
+        var opts = {
+            lines: 12,
+            angle: 0,
+            lineWidth: 0.4,
+            pointer: {
+                length: 0.75,
+                strokeWidth: 0.042,
+                color: '#1D212A'
+            },
+            limitMax: 'false',
+            colorStart: '#1ABC9C',
+            colorStop: '#1ABC9C',
+            strokeColor: '#F0F3F3',
+            generateGradient: true
+        };
+        var target = document.getElementById('foo'),
+            gauge = new Gauge(target).setOptions(opts);
+
+        gauge.maxValue = 6000;
+        gauge.animationSpeed = 32;
+        gauge.set(3200);
+        gauge.setTextField(document.getElementById("gauge-text"));
+
+    });
+    </script>
+</body>
+
+</html>

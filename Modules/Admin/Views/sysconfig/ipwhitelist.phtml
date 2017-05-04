@@ -1,0 +1,92 @@
+<div class="page-title clearfix">
+    <div class="title_left">
+        <h3>IP白名单</h3>
+    </div>
+    <div class="title_right">
+        <button type="submit" class="btn btn-success pull-right"
+                onclick="javascript:openDialog('Modal', url('/sysconfig/editIpWhiteList'));">添加
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <form class="form-inline">
+                <div class="form-group form-group-sm">
+                    <input type="text" class="form-control" name="ip" id="ip-ipt" placeholder="IP"/>
+                </div>
+                <button class="btn btn-primary btn-sm">搜索</button>
+            </form>
+        </div>
+
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table" id="data"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var dataTable = $("#data"),
+        oForm = $("form"),
+        baseUrl = "<?=APP_ADMIN_PATH?>/sysconfig/queryIpWhiteList";
+
+    dataTable.DataTable({
+        serverSide: true,
+        ajax: baseUrl + '?' + oForm.serialize(),
+        ordering: false,
+        columns: [
+            {title: 'IP', data: 'ip'},
+            {title: '备注', data: 'description'},
+            {title: '添加时间', data: 'ctime'},
+            {
+                title: '状态', data: 'status', render: function (status, type, row) {
+                return (status == 1 ? '启用' : '禁用');
+            }
+            },
+            {
+                title: "操作", "data": "ip", render: function (ip, type, row) {
+                var button = '';
+
+                button += "<button name='status' class='btn " + (row.status == 1 ? "btn-warning" : "btn-info") + " btn-xs' data-id='" + row.ip + "'>" + (row.status == 1 ? '禁用' : '启用') + " </button>";
+                button += "<button name='modify' class='btn btn-primary btn-xs' data-id='" + row.ip + "'>修改</button>";
+
+                return button;
+            }
+            }
+        ]
+    });
+
+    dataTable.on('click', "button[name='status']", function () {
+        var ip = $(this).attr('data-id');
+
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "<?php echo APP_ADMIN_PATH; ?>/sysconfig/modifyIpStatus",
+            data: {ip: ip},
+            dataType: 'json',
+            error: function (data) {
+                alert('系统异常，请稍后再试！');
+            },
+            success: function (data) {
+                if (data.retcode == 2000000) {
+                    refresh();
+                }
+            }
+        });
+    });
+
+    dataTable.on('click', "button[name='modify']", function () {
+        var ip = $(this).attr('data-id');
+
+        openDialog('Modal', url('/sysconfig/editIpWhiteList?ip=' + ip));
+    });
+
+    oForm.on('submit', function () {
+        dataTable.DataTable().ajax.url(baseUrl + '?' + oForm.serialize()).load();
+        return false;
+    });
+</script>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>系统配置</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+</head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <?= $menuview; ?>
+
+        <!-- 内容区域 -->
+        <div class="right_col" role="main">
+
+            <div class="page-title clearfix">
+                <div class="title_left">
+                    <h3>系统配置</h3>
+                </div>
+            </div>
+
+            <div class="x_panel">
+                <div class="x_content">
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                        <ul id="sysconfig-tabs" class="nav nav-tabs bar_tabs" role="tablist">
+                            <?php
+                            foreach ($tab_configs as $index => $item) { ?>
+                                <li role="ajax-tab" <?= 0 == $index ? 'class="active"' : ''?>><a href="<?= $item['url'] ?>" role="tab" data-toggle="ajax-tab" aria-expanded="true"><?= $item['title'] ?></a></li>
+                            <?php }
+                            ?>
+                        </ul>
+                        <div id="tab-content" class="tab-content">
+                            <?php
+                            foreach ($tab_configs as $index => $item) { ?>
+                                <div role="tabpanel" class="tab-pane fade active in" id="tab_content<?= $index ?>"></div>
+                            <?php }
+                            ?>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <!-- /内容区域 -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Welcome to New Admin ！
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+
+<script type="text/javascript">
+</script>
+</body>
+</html>

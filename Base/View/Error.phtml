@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>出错啦</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+        html,body,div,p{
+            margin: 0;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            -webkit-text-size-adjust: none;
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+            font-family: arial, sans-serif;
+        }
+        .err_w{
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: table;
+        }
+        .err_b{
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            position: relative;
+        }
+        .err_img{
+            left: 0;
+            top: 0;
+        }
+        .err_img{
+            width: 106px;
+            height: 106px;
+            border: solid 2px #c9caca;
+            border-radius: 106px;
+            position: relative;
+            box-sizing: border-box;
+            margin: -40px auto 0;
+        }
+        .eye_l, .eye_r, .eye_l:before, .eye_r:before{
+            position: absolute;
+            top: 27px;
+            width: 2px;
+            height: 21px;
+            border-radius: 2px;
+            background: #c9caca;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+        .eye_l{
+            left: 30px;
+        }
+        .eye_r{
+            left: 69px;
+        }
+        .eye_l:before, .eye_r:before{
+            content: '';
+            top: 0;
+            left: 0;
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            transform: rotate(90deg);
+        }
+        .mouth{
+            position: absolute;
+            top: 68px;
+            left: 50%;
+            margin-left: -25px;
+            width: 50px;
+            height: 20px;
+            overflow: hidden;
+        }
+        .mouth_t{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            border-radius: 4px;
+            background: #c9caca;
+        }
+        .mouth_b{
+            position: absolute;
+            top: -10px;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            border: solid 2px #c9caca;
+            border-radius: 12px;
+        }
+        .mouth_b:before{
+            position: absolute;
+            content: '';
+            width: 2px;
+            height: 6px;
+            background: #c9caca;
+            left: 8px;
+            top: 9px;
+            border-radius: 3px;
+
+        }
+        .t1,.t2{
+            color: #b5b5b6;
+            text-align: center;
+        }
+        .t1{margin-top: 25px;}
+        .t2{margin-top: 12px;}
+        .t2{
+            display: inline-block;
+            padding: 0 10px;
+            border: solid 1px #b5b5b6;
+            border-radius: 30px;
+            height: 22px;
+            line-height: 22px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="err_w">
+    <div class="err_b">
+        <div class="err_img">
+            <i class="eye_l"></i>
+            <i class="eye_r"></i>
+            <div class="mouth">
+                <i class="mouth_t"></i>
+                <i class="mouth_b"></i>
+            </div>
+
+        </div>
+        <p class="t1"><?=$msg?></p>
+        <p class="t2">error <?=$retcode?></p>
+    </div>
+</div>
+</body>
+</html>

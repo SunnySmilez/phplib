@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>组员管理</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+    <link href="<?= APP_STATIC_PATH ?>/admin/build/css//chosen.min.css" type="text/css" rel="stylesheet">
+    <script src="<?= APP_STATIC_PATH ?>/admin/build/js/chosen.jquery.min.js"></script>
+</head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <?= $menuview ?>
+
+        <!-- 内容区域 -->
+        <div class="right_col" role="main">
+
+            <div class="page-title clearfix">
+                <div class="title_left">
+                    <h3>组员管理</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <form id="member-form">
+                            <div class="form-group input-group  input-control">
+                                <span class="input-group-addon">用户</span>
+                                <select class="form-control chosen-select" id="uids" name="uids[]"
+                                        data-placeholder="点击选择用户"
+                                        multiple>
+                                    <?php
+                                    if ($user_list) {
+                                        foreach ($user_list as $item) {
+                                            $select = in_array($item['uid'], $member) ? 'selected="selected"' : '';
+                                            echo "<option value=\"{$item['uid']}\" {$select}>{$item['uname']}</option>";
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <input type="hidden" name="gid" value="<?= $group['gid']; ?>"/>
+
+                            <button id="save" class="btn btn-success btn-sm">添加</button>
+                        </form>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped jambo_table bulk_action">
+                                <thead>
+                                <tr class="headings">
+                                    <th>用户名</th>
+                                    <th>姓名</th>
+                                    <th>手机</th>
+                                    <th>角色</th>
+                                    <th>所属组</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ((array)$member as $user) { ?>
+                                    <tr>
+                                        <td><?= $user['uname'] ?></td>
+                                        <td><?= $user['nick'] ?></td>
+                                        <td><?= $user['phone']; ?></td>
+                                        <td>
+                                            <?= $user['isadmin'] ? '管理员' : '普通用户' ?>
+                                            <?= $user['isban'] ? '（已禁用）' : '' ?>
+                                        </td>
+                                        <td><?= $group['gname'] ?></td>
+                                        <td>
+                                            <button class="btn btn-danger btn-xs del" gid="<?= $group['gid'] ?>"
+                                                    uid="<?= $user['uid'] ?>">移除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- /内容区域 -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Welcome to New Admin ！
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#save').click(function () {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: url("/group/addMembers"),
+                data: $('#member-form').serialize(),
+                dataType: 'json',
+                error: function (data) {
+                    alert('系统异常，请稍后再试！');
+                },
+                success: function (data) {
+                    if (data.retcode == 2000000) {
+                        refresh();
+                    }
+                }
+            });
+        });
+
+        $('.del').click(function () {
+            if (!confirm('您确定移除该成员吗？')) {
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: url("/group/delMember"),
+                data: {
+                    gid: $(this).attr('gid'),
+                    uid: $(this).attr('uid')
+                },
+                dataType: 'json',
+                error: function (data) {
+                    alert('系统异常，请稍后再试！');
+                },
+                success: function (data) {
+                    if (data.retcode == 2000000) {
+                        refresh();
+                    }
+                }
+            });
+        });
+
+        // 	$('#dataTables-admin').dataTable({
+// 		"sDom": '<"top">rt<"bottom"p><"clear">',
+// 		"iDisplayLength":20
+// 	});
+
+    });
+
+    var config = {
+        '.chosen-select': {},
+        '.chosen-select-deselect': {allow_single_deselect: true},
+        '.chosen-select-no-single': {disable_search_threshold: 10},
+        '.chosen-select-no-results': {no_results_text: 'Oops, nothing found!'},
+        '.chosen-select-width': {width: "95%"}
+    };
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+
+</script>
+</body>
+</html>

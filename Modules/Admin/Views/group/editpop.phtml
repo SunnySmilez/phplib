@@ -1,0 +1,61 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="addModalLabel"><?= $gid ? "编辑" : "新增" ?>用户组</h4>
+</div>
+<div class="modal-body">
+    <form id="add-group-form">
+    <div class="form-group input-group  input-control">
+        <span class="input-group-addon">组名</span>
+        <input type="text" class="form-control" id="gname" name="gname" placeholder="" value="<?= $gname ?>">
+        <input type="hidden" id="gid" name="gid" value="<?= $gid ?>">
+        <input type="hidden" id="ogname" name="ogname" value="<?= $gname ?>">
+    </div>
+    <span class="span-name" id="exist-tips"></span>
+
+    <div class="form-group input-group  input-control">
+        <span class="input-group-addon">简介</span>
+        <textarea class="form-control" id="description" name="description" rows="3"><?= $description ?></textarea>
+    </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <span class="tips" id="atip"></span>
+    <button type="button" id="cancel" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" id="save" class="btn btn-primary">确认</button>
+</div>
+<script>
+$('#save').click(function(){
+    var name = $('#gname').val();
+
+    if (!name.trim()) {
+        alert('请填写组名');
+        return false;
+    }
+
+    $.post(url('/group/saveGroup'), $('#add-group-form').serialize(), function(ret){
+        if (ret.retcode!=2000000) {
+            alert(ret.msg);
+        } else {
+            refresh();
+        }
+    }, 'json');
+});
+
+$('#gname').blur(function(){
+    var name    = $('#gname').val();
+    var ogname  = $('#ogname').val();
+
+    if (!name || ogname === name) {
+        return false;
+    }
+
+    $.post(url('/group/exist'), {gname:name}, function(ret){
+        if (ret && ret.retcode != 2000000) {
+            $('#exist-tips').text(name + ' 已存在');
+            $(this).focus();
+        }else{
+            $('#exist-tips').html('');
+        }
+    }, 'json');
+});
+</script>

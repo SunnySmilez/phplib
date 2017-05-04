@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title><?php echo $uid ? "编辑" : "新增"; ?>用户</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+    <link href="<?= APP_STATIC_PATH ?>/admin/build/css//chosen.min.css" type="text/css" rel="stylesheet">
+    <script src="<?= APP_STATIC_PATH ?>/admin/build/js/chosen.jquery.min.js"></script>
+</head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <?php echo $menuview; ?>
+
+        <!-- 内容区域 -->
+        <div class="right_col" role="main">
+
+            <div class="title_left">
+                <h3><?php echo $uid ? "编辑" : "添加"; ?>用户</h3>
+            </div>
+            <div class="modal-body">
+                <form id="userform">
+                    <div class="form-group input-group  input-control">
+                        <span class="input-group-addon">用户名&nbsp;</span>
+                        <input type="text" class="form-control" id="uname" name="uname"
+                               placeholder="大小写拉丁字母(a-z A-Z)、汉字、数字(0-9)、英文句号(.)或下划线(_)"
+                               onBlur="checkName(this.value);" value="<?php echo $uname; ?>">
+                    </div>
+                    <span class="span-name" id="anamecheck"></span>
+                    <div class="form-group input-group  input-control">
+                        <span class="input-group-addon">&nbsp;&nbsp;姓名&nbsp;&nbsp;</span>
+                        <input type="text" maxlength="11" class="form-control" id="nick" name="nick" placeholder="2-15个汉字"
+                               value="<?php echo $nick; ?>">
+                    </div>
+                    <div class="form-group input-group  input-control">
+                        <span class="input-group-addon">&nbsp;&nbsp;手机&nbsp;&nbsp;</span>
+                        <input type="text" maxlength="11" class="form-control" id="phone" name="phone" placeholder="11位数字"
+                               value="<?php echo $phone; ?>">
+                    </div>
+                    <div class="form-group input-group  input-control">
+                        <span class="input-group-addon">&nbsp;&nbsp;邮箱&nbsp;&nbsp;</span>
+                        <input type="text" maxlength="50" class="form-control" id="email" name="email"
+                               placeholder="格式示例: abc@demo.com"
+                               value="<?php echo $email; ?>">
+                    </div>
+                    <span class="span-phone" id="aphonecheck"></span>
+
+                    <div class="form-group input-group  input-control">
+                        <span class="input-group-addon">&nbsp;&nbsp;描述&nbsp;&nbsp;</span>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="描述可为空" value="<?php echo $description; ?>">
+                    </div>
+                    <div class="form-group input-group  input-control">
+                        <span class="input-group-addon">&nbsp;用户组</span>
+                        <select class="form-control chosen-select" id="group" name="group[]" data-placeholder="点击选择用户所属组"
+                                multiple>
+                            <?php
+                            if ($groups && is_array($groups)) {
+                                foreach ($groups as $v) {
+                                    $select = is_array($group) && in_array($v['gid'], $group) ? 'selected="selected"' : '';
+                                    echo "<option value=\"{$v['gid']}\" {$select}>{$v['gname']}</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group input-group  input-control">
+                        <label>用户角色</label>
+                        <label class="checkbox-inline">
+                            <input name="isadmin" type="radio" <?php echo $isadmin == '1' ? 'checked="checked"' : ''; ?> value="1"
+                                   title="拥有系统全部权限"> 管理员
+                        </label>
+                        <label class="checkbox-inline">
+                            <input name="isadmin"
+                                   type="radio" <?php echo ($isadmin == '0' || $isadmin === null) ? 'checked="checked"' : ''; ?>
+                                   value="0" title="根据配置获取系统权限"> 普通用户
+                        </label>
+                    </div>
+                    <?php if ($uid) { ?>
+                        <div class="form-group input-group  input-control">
+                            <label>用户状态</label>
+                            <label class="checkbox-inline">
+                                <input id="status-normal" <?php echo $status == '0' ? 'checked="checked"' : ''; ?> name="status"
+                                       type="radio" value="0"> 正常
+                            </label>
+                            <label class="checkbox-inline">
+                                <input id="status-ban" <?php echo $status == '1' ? 'checked="checked"' : ''; ?> name="status"
+                                       type="radio" value="1"> 禁用
+                            </label>
+                        </div>
+                    <?php } ?>
+                    <input type="hidden" name="uid" value="<?php echo $uid; ?>"/>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="tips" id="atip"></span>
+                <button type="button" id="cancel" class="btn btn-default" data-dismiss="modal">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+                <button type="button" id="save" class="btn btn-primary">&nbsp;&nbsp;保存&nbsp;&nbsp;</button>
+            </div>
+        </div>
+        <!-- /内容区域 -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Welcome to New Admin ！
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+</body>
+<script>
+    $(document).ready(function () {
+        $('#cancel').click(function () {
+            indexUrl = '<?=APP_ADMIN_PATH?>/user/index';
+            jumpUrl(indexUrl);
+        });
+
+        $('#save').click(function () {
+            var uname = $('#uname'), nick = $('#nick'), phone = $('#phone'), email = $('#email'), description = $('#description');
+            if (!uname.val().trim()) {
+                alert('请填写用户名');
+                uname.focus();
+                return;
+            }
+            if (!nick.val().trim()) {
+                alert('请填写姓名');
+                nick.focus();
+                return;
+            }
+            if (!phone.val().trim()) {
+                alert('请填写手机号');
+                phone.focus();
+                return;
+            }
+            if (!/^1\d{10}$/.test(phone.val().trim())) {
+                alert('请填写正确的手机号');
+                phone.focus();
+                return;
+            }
+            if (!email.val().trim()) {
+                alert('请填写邮箱');
+                email.focus();
+                return;
+            }
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: url("/user/saveUserInfo/<?php echo isset($uid) ? '?uid=' . $uid : ''; ?>"),
+                data: $('#userform').serialize(),
+                dataType: 'json',
+                error: function (data) {
+                    alert('系统异常，请稍后再试！');
+                },
+                success: function (data) {
+                    alert(data.msg);
+                    if (data.retcode == 2000000) {
+                        refresh();
+                    }
+                }
+            });
+        });
+
+        //是否可以输入密码
+        /*$('input[name="verify"]').click(function () {
+         var verify = parseInt($(this).val());
+         if (verify) {
+         $('input[name="password"]').attr('disabled', true);
+         } else {
+         $('input[name="password"]').attr('disabled', false);
+         }
+         });
+         $('input[name="verify"]:checked').trigger('click');*/
+
+    });
+
+    // 检查用户名是否存在
+    function checkName(value) {
+        if ('<?php echo $uname; ?>' == value) return;
+        $.get(url("/user/checkNameExist"), {
+                name: value
+            },
+            function (data) {
+                if (data.retcode == 2000000) {
+                    $('#anamecheck').html('');
+                } else {
+                    $('#anamecheck').html('用户已存在');
+                }
+            }, "json");
+    }
+
+    var config = {
+        '.chosen-select': {},
+        '.chosen-select-deselect': {allow_single_deselect: true},
+        '.chosen-select-no-single': {disable_search_threshold: 10},
+        '.chosen-select-no-results': {no_results_text: 'Oops, nothing found!'},
+        '.chosen-select-width': {width: "95%"}
+    };
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+
+</script>
+</html>

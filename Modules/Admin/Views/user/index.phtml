@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>人员管理</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+</head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <?= $menuview; ?>
+
+        <!-- 内容区域 -->
+        <div class="right_col" role="main">
+
+            <div class="page-title clearfix">
+                <div class="title_left">
+                    <h3>人员管理</h3>
+                </div>
+                <div class="title_right">
+                    <button type="submit" class="btn btn-success pull-right" id="add">新建</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <form class="form-inline">
+                            <div class="form-group form-group-sm">
+                                <input type="text" class="form-control" name="uname" id="uname" placeholder="用户名"/>
+                            </div>
+                            <button class="btn btn-primary btn-sm">搜索</button>
+                        </form>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table" id="user-list"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- /内容区域 -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Welcome to New Admin ！
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+</body>
+<script>
+    var form = $("form");
+    var userList = $("#user-list");
+    var queryUrl = url("/user/queryUserList");
+
+    userList.DataTable({
+        serverSide: true,
+        ajax: queryUrl + "?" + form.serialize(),
+        ordering: false,
+        columns: [
+            {title: '用户名', data: 'uname'},
+            {title: '姓名', data: 'nick'},
+            {title: '邮箱', data: 'email'},
+            {title: '手机', data: 'phone'},
+            {title: '描述', data: 'description'},
+            {
+                title: '角色', data: 'isadmin', render: function (isadmin, type, row) {
+                role = (1 == row.isadmin) ? '管理员' : '普通用户';
+
+                if (1 == row.status) {
+                    role += '（已禁用）';
+                }
+
+                return role;
+            }
+            },
+            {
+                title: "操作", "data": "uid", render: function (uid, type, row) {
+                var button = '';
+
+                button += "<button name='edit' class='btn btn-primary btn-xs' uid='" + uid + "'>编辑</button>";
+                button += "<button name='acl' class='btn btn-primary btn-xs'  uid='" + uid + "' isAdmin='" + row.isadmin + "' isBan='" + row.status + "'>权限</button>";
+                button += "<button name='status' class='btn " + (1 == row.status ? "btn-danger" : "btn-primary") + " btn-xs' " +
+                    "uid='" + uid + "' isBan='" + row.status + "'>" + (1 == row.status ? "解禁" : "禁止") + "</button>";
+
+                return button;
+            }
+            }
+        ]
+    });
+
+    userList.on('click', "button[name='edit']", function () {
+        editUserInfo($(this).attr('uid'));
+    });
+
+    userList.on('click', "button[name='acl']", function () {
+        if (1 == $(this).attr('isAdmin')) {
+            alert('该用户为管理员，不能修改访问控制！');
+            return;
+        }
+        if (1 == $(this).attr('isBan')) {
+            alert('该用户已被冻结，不能修改访问控制！');
+            return;
+        }
+
+        location.href = url("/acl/index/?uid=" + $(this).attr('uid'));
+    });
+
+    userList.on('click', "button[name='status']", function () {
+        var isBan = $(this).attr('isBan'), change = {1: 0, 0: 1};
+
+        $.post(url('/user/setBan'), {isban: change[isBan], uid: $(this).attr('uid')}, function (json) {
+            if (json.retcode == 2000000) {
+                refresh();
+            } else {
+                alert(json.msg);
+            }
+        });
+    });
+
+    form.on('submit', function () {
+        userList.DataTable().ajax.url(queryUrl + '?' + form.serialize()).load();
+
+        return false;
+    });
+
+    $('#add').click(function () {
+        editUserInfo()
+    });
+
+    function editUserInfo(uid = null) {
+        location.href = url("/user/editUserInfo") + (uid ? '?uid=' + uid : '');
+    }
+</script>
+</html>

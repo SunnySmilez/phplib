@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>菜单管理</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+</head>
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <?php echo $menuview; ?>
+
+            <!-- 内容区域 -->
+            <div class="right_col" role="main">
+
+                <div class="page-title clearfix">
+                    <div class="title_left">
+                        <h3>菜单管理</h3>
+                    </div>
+                    <div class="title_right">
+                        <button type="submit" id="new-menu-btn" class="btn btn-success pull-right">新建菜单</button>
+                    </div>
+                </div>
+
+
+    			<div class="panel panel-default">
+    				<div class="panel-heading search-panel">
+    					<div class="panel-body">
+    						<form id="menu_controll" action="" method="post" onsubmit="return false;">
+    							<input type="hidden" name="id" value="<?=$menu['id']?>">
+    							<div class="col-xs-2">
+    								<select name="mid" id="mid" class="form-control">
+    									<option value="">请选择菜单名</option>
+    									<?php foreach ($menus as $l) {
+    										$selected = isset($menu['mid']) && $menu['mid'] === $l['mid'] ? 'selected=selected' : '';
+    										echo "<option value=\"{$l['mid']}\" title='{$l['description']}' {$selected}>{$l['mname']}</option>";
+    									}?>
+    								</select>
+    							</div>
+    							<div class="col-xs-4">
+    								<select name="controller" id="controller" class="form-control">
+
+    								</select>
+    							</div>
+    							<div class="col-xs-3">
+    								<select name="action" id="action" class="form-control">
+    									<option value="">请选择action</option>
+    								</select>
+    							</div>
+    							<br/><br/>
+    							<div class="col-xs-2">
+    								<input type="text" size="3" id="order" name="order" class="form-control" placeholder="排序" value="<?=$menu['order']?>"/>
+    							</div>
+    							<div class="col-xs-6">
+    								<input type="text" size="20" id="uname" name="uname" class="form-control" placeholder="自定义显示名称，默认为action名称" value="<?=$menu['uname']?>"/>
+    							</div>
+    							<div class="col-xs-2">
+    								<button id="addControl" class="btn btn-success">提交</button>
+    							</div>
+    						</form>
+    					</div>
+    				</div>
+    			</div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped jambo_table bulk_action">
+                        <thead>
+                            <tr class="headings">
+                                <th>名称</th>
+                                <th style="text-align: center;">控制器</th>
+                                <th>排序</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="menulist">
+                            <?php foreach ($menus as $l) { ?>
+                            <tr>
+                                <td title="<?=$l['description']?>"><?=$l['mname']?></td>
+                                <td>&nbsp;</td>
+                                <td><?=$l['order']?></td>
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-xs edit-menu-btn" mid="<?=$l['mid']?>">编辑</button>
+                                    <button type="button" class="btn btn-primary btn-xs _for_menu_del" mid="<?=$l['mid']?>">删除</button>
+                                </td>
+                            </tr>
+                            <?php foreach((array)$control[$l['mid']] as $k => $m) { ?>
+                                <tr style="background-color:#ffffff">
+                                    <td class="sactions" style="text-align: right;"><?=$m['uname']?></td>
+                                    <td style="text-align: center;"><?=$m['controller'] .' :: '. $m['action']?></td>
+                                    <td><?=$m['order']?></td>
+                                    <td>
+                                        <a class="btn btn-primary btn-xs" href="<?=APP_ADMIN_PATH?>/menu/index/?id=<?=$m['id']?>">编辑</a>
+                                        <button type="button" class="btn btn-primary btn-xs _for_action_del" sid="<?=$m['id']?>">删除</button>
+                                    </td>
+                                </tr>
+                            <?php }
+                                if(empty($control[$l['mid']])) {
+                                    echo '<tr style="background-color:#ffffff"><td colspan=4 >暂无子菜单，请到顶部菜单管理进行添加</td></tr>';
+                                }
+                            } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /内容区域 -->
+
+
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    Welcome to New Admin ！
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+	<script type="text/javascript">
+		//TODO 按关键词搜索controller或action
+
+		$(document).ready(function () {
+			var actions = <?=$actions_json?> || {};
+
+			//生成controller下拉列表
+			var select_str = '<option value="">请选择controller</option>';
+			$.each(actions,function(i, e){
+				select_str += '<option value="'+ i +'">'+ i +'_'+ e.name +'</option>';
+			});
+			$('#controller').html(select_str);
+
+			// 联动修改action
+			$('#controller').change(function(){
+				var controller = $(this).val(), oaction = $('#action');
+				var cur_actions = actions[controller]['methods'];
+				if (cur_actions) {
+					var option = '<option value="">请选择action</option>', act='';
+					for (act in cur_actions) {
+						option += '<option value="'+act+'" title="'+controller+'::'+act+'">'+cur_actions[act]['name']+'</option>';
+					}
+					oaction.html(option);
+				}
+			});
+
+			// 设置默认uname
+			$('#action').change(function(){
+				var oaction = $('#action'),
+					ouname = $('#uname');
+				if (oaction.val() != '') {
+					ouname.val($('#action>option:selected').text());
+				} else {
+					ouname.val('');
+				}
+			});
+
+            // 新增菜单
+            $('#new-menu-btn').click(function() {
+                openDialog('Modal', url('/menu/editmenupop'));
+            });
+
+            // 编辑菜单
+            $('.edit-menu-btn').click(function() {
+                openDialog('Modal', url('/menu/editmenupop/?id='+$(this).attr('mid')));
+            });
+
+            // 删除菜单
+            $('._for_menu_del').click(function() {
+                if (!confirm('您正在删除顶级菜单栏及所属子菜单，\r\n删除后将不可恢复，请确认操作！')) return;
+                $.post(url('/menu/delmenu'), {id:$(this).attr('mid')}, function(data) {
+                   if(data.retcode == 2000000) {
+                       refresh();
+                   } else {
+                       alert(data.msg);
+                   }
+                });
+
+            });
+
+            // 删除子菜单
+            $('._for_action_del').click(function() {
+                if (!confirm('您确定删除该菜单栏吗？')) return;
+                $.post(url('/menu/delmenucontrol'), {id:$(this).attr('sid')}, function(data) {
+                   if(data.retcode == 2000000) {
+                       refresh();
+                   } else {
+                       alert(data.msg);
+                   }
+                });
+            });
+
+			//修改菜单
+			var controller = '<?=$menu['controller']?>' || '';
+			var action = '<?=$menu['action']?>' || '';
+			// if(controller){
+			// 	$('#controller').val(controller);
+			// 	$('#controller').trigger('change');
+			// }
+			if(action){
+				$('#action').val(action);
+			}
+
+		});
+
+        function sprintf(string, replace, arr) {
+            for (var i=0; i<arr.length; i++) {
+                string = string.replace(replace, arr[i]);
+            }
+            return string;
+        }
+
+        function user_alert(msg, id) {
+            alert(msg);
+            $('#'+id).focus();
+            return false;
+        }
+
+        $('#addControl').click(function(){
+            var controller = $('#controller'),
+            action = $('#action'),
+            order = $('#order'),
+            uname = $('#uname');
+
+            if (controller.val().trim() == '') {
+                user_alert('请选择controller', 'controller');
+                return;
+            }
+            if (action.val().trim() == '') {
+                user_alert('请选择action', 'action');
+                return;
+            }
+            if (order.val().trim() == '') {
+                user_alert('请填写排序', 'order');
+                return;
+            }
+            if (uname.val().trim() == '') {
+                user_alert('请填写子菜单名称', 'uname');
+                return;
+            }
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url:url("/menu/savemenucontrol"),
+                data:$('#menu_controll').serialize(),
+                dataType: 'json',
+                error: function(data) {
+                    alert('系统异常，请稍后再试！');
+                },
+                success: function(data) {
+                    if(data.retcode == 2000000) {
+                        jumpUrl(url('/menu/index'));
+                    } else {
+                        alert(data.msg);
+                    }
+                }
+            });
+        });
+	</script>
+</body>
+
+</html>

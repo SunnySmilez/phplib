@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>管理后台 —— 登录</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+</head>
+<body class="loginpage">
+
+<!--loginbox-->
+<div class="loginbox">
+    <!--loginboxinner-->
+    <div class="loginboxinner">
+
+        <div class="logo">
+            <h1 class="logo">NEW <span>Admin</span></h1>
+            <span class="slogan">后台管理系统</span>
+        </div><!--logo-->
+
+        <br clear="all"/><br/>
+
+        <div class="login-form">
+            <div class="username">
+                <i class="login-form-i fa fa-user"></i>
+                <div class="usernameinner">
+                    <input type="text" name="username" id="username" placeholder="请输入用户名"/>
+                </div>
+            </div>
+
+            <div class="password">
+                <i class="login-form-i fa fa-lock"></i>
+                <div class="passwordinner">
+                    <input type="password" name="password" id="password" placeholder="请输入密码"/>
+                </div>
+            </div>
+
+            <button class="js-login">登录</button>
+
+            <div class="keep">
+                <label class="checkbox-text">
+                    <input type="checkbox"/><span>记住密码</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="js-error nousername">
+            <div class="js-msg loginmsg">密码不正确</div>
+        </div>
+
+    </div>
+    <!--/loginboxinner-->
+</div>
+<!--/loginbox-->
+
+<script>
+    $(document).ready(function () {
+
+        var $jsLogin = $('.js-login');
+        var $jsError = $('.js-error');
+        var $jsErrMsg = $jsError.find('.js-msg');
+        var $username = $('#username');
+        var $password = $('#password');
+        var timer = null;
+        var jumpUrl = '<?= $refer ? $refer : APP_ADMIN_PATH . "/welcome/index" ?>';
+
+        $(document).keydown(function (e) {
+            if (e.keyCode == 13) {
+                $jsLogin.click();
+            }
+        });
+
+        $jsLogin.click(function () {
+            if (!$.trim($username.val()) || !$.trim($password.val())) {
+                showError('用户名或密码不能为空');
+                return;
+            }
+
+            $.post("<?= APP_ADMIN_PATH; ?>/login/login", {
+                    username: $username.val(),
+                    password: $password.val()
+                },
+                function (data) {
+                    if (data.retcode == 2000000) {
+                        if (data.is_admin && 0 == data.is_admin_user_banned) {
+                            alert("请及时禁用admin帐号");
+                        }
+                        window.location.href = jumpUrl;
+                    }
+                    else {
+                        showError(data.msg);
+                    }
+                }, 'json');
+        });
+
+        function showError(msg) {
+            clearTimeout(timer);
+            $jsErrMsg.text(msg);
+            $jsError.stop().slideDown(300);
+            setTimeout(function () {
+                $jsError.stop().slideUp(100);
+            }, 1200);
+        }
+    });
+
+</script>
+</body>
+</html>

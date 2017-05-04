@@ -1,0 +1,115 @@
+<div class="page-title clearfix">
+    <div class="title_left">
+        <h3>访问日志</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <form class="form-inline">
+                <div class="form-group form-group-sm">
+                    <input type="text" class="form-control" name="uname" id="name-ipt" placeholder="用户名"/>
+                </div>
+                <div class="form-group form-group-sm">
+                    <input type="text" class="form-control" name="ctrl" id="ctrl-ipt" placeholder="控制器"/>
+                </div>
+                <div class="form-group form-group-sm">
+                    <input type="text" class="form-control time-picker" name="time_from" id="time-ipt"
+                           value="<?= date("Y-m-d") ?> 00:00:00" placeholder="起始时间"/> -
+                    <input type="text" class="form-control time-picker" name="time_to" id="time-ipt"
+                           value="<?= date("Y-m-d") ?> 23:59:59" placeholder="结束时间"/>
+                </div>
+                <button class="btn btn-primary btn-sm">搜索</button>
+            </form>
+        </div>
+
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table" id="data1"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(".time-picker").datetimepicker({
+        weekStart: 1,
+        autoclose: true,
+        todayHighlight: true,
+        language: 'cn',
+        step: 60,
+        format: 'Y-m-d H:i:s'
+    });
+
+    var oTable = $("#data1"),
+        oForm = $("form"),
+        baseUrl = "<?=APP_ADMIN_PATH?>/sysconfig/queryVisitLog";
+
+    oTable.DataTable({
+        serverSide: true,
+        ajax: baseUrl + '?' + oForm.serialize(),
+        ordering: false,
+        columns: [
+            {
+                title: '用户名', data: 'uname', render: function (data, type, row) {
+                return data ? data : '-';
+            }
+            },
+            {title: '控制器', data: 'uri'},
+            {title: '时间', data: 'ctime'},
+            {
+                title: 'Request', data: 'request_info', render: function (data, type, row) {
+                return '<button class="btn btn-sm btn-default show-detail" data-detail=\'' + data + '\'>查看</button>';
+            }
+            },
+            {
+                title: 'SESSION', data: 'session_info', render: function (data, type, row) {
+                return '<button class="btn btn-sm btn-default show-detail" data-detail=\'' + data + '\'>查看</button>';
+
+            }
+            },
+            {
+                title: 'SERVER', data: 'server_info', render: function (data, type, row) {
+                return '<button class="btn btn-sm btn-default show-detail" data-detail=\'' + data + '\'>查看</button>';
+            }
+            }
+        ]
+    });
+
+    oTable.on('click', '.show-detail', function () {
+        var detail = $(this).data('detail');
+        Tools.dialog({
+            title: "",
+            html: '<div style="height:400px;text-align:left;overflow-y: scroll;padding-left:15px;padding-right:15px;"><pre>' + syntaxHighlight(detail) + '</pre></div>',
+            width: 800
+        });
+    });
+
+    oForm.on('submit', function () {
+        oTable.DataTable().ajax.url(baseUrl + '?' + oForm.serialize()).load();
+        return false;
+    });
+
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+</script>

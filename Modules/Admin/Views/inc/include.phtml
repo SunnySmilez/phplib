@@ -1,0 +1,602 @@
+<!-- Bootstrap -->
+<link href="<?= APP_STATIC_PATH ?>/admin/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link href="<?= APP_STATIC_PATH ?>/admin/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+<!-- NProgress -->
+<link href="<?= APP_STATIC_PATH ?>/admin/vendors/nprogress/nprogress.css" rel="stylesheet">
+<!-- Animate.css -->
+<link href="<?= APP_STATIC_PATH ?>/admin/vendors/animate.css/animate.min.css" rel="stylesheet">
+
+<!-- Custom Theme Style -->
+<link href="<?= APP_STATIC_PATH ?>/admin/build/css/custom.min.css" rel="stylesheet">
+<!-- Admin -->
+<link href="<?= APP_STATIC_PATH ?>/admin/build/css/admin.css" rel="stylesheet">
+<!-- DatetimePicker -->
+<link href="<?= APP_STATIC_PATH ?>/admin/build/css/jquery.datetimepicker.css" type="text/css" rel="stylesheet">
+<!-- DataTables -->
+<link href="<?= APP_STATIC_PATH ?>/admin/build/css//jquery.dataTables.min.css" type="text/css" rel="stylesheet">
+
+<!-- jQuery -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- FastClick -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/fastclick/lib/fastclick.js"></script>
+<!-- NProgress -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/nprogress/nprogress.js"></script>
+<!-- Chart.js -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/Chart.js/dist/Chart.min.js"></script>
+<!-- gauge.js -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/gauge.js/dist/gauge.min.js"></script>
+<!-- bootstrap-progressbar -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+<!-- iCheck -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/iCheck/icheck.min.js"></script>
+<!-- Skycons -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/skycons/skycons.js"></script>
+<!-- Flot -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/Flot/jquery.flot.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/Flot/jquery.flot.pie.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/Flot/jquery.flot.time.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/Flot/jquery.flot.stack.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/Flot/jquery.flot.resize.js"></script>
+<!-- Flot plugins -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/flot.curvedlines/curvedLines.js"></script>
+<!-- DateJS -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/DateJS/build/date.js"></script>
+<!-- JQVMap -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/jqvmap/dist/jquery.vmap.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js"></script>
+<!-- bootstrap-daterangepicker -->
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/moment/min/moment.min.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+
+<!-- Custom Theme Scripts -->
+<script src="<?= APP_STATIC_PATH ?>/admin/build/js/custom.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/build/js/jquery.datetimepicker.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/build/js/jquery.dataTables.min.js"></script>
+<script src="<?= APP_STATIC_PATH ?>/admin/build/js/metisMenu.js"></script>
+
+<script>
+    /*
+     * 自动提交表单
+     * 需要指定父元素class为 form
+     * 需要指定提交按钮的class为 submit
+     * 需要提交的字段，节点给一个name属性，这个属性就是提交到后台的字段名字
+     * 必要的字段，添加notnull属性，提交的时候，如果带有该属性的字段没有填写，则会提示
+     * 可在提交按钮上 添加一个success='callback'的属性，当ajax成功时，会去全局范围调用callback并回传ajax返回的data
+     */
+    $(document).on('click', '.submit', function () {
+
+        var me = this;
+        var $el = $(this);
+        var $par = $el.closest('form').length ? $el.closest('form') : $('body');
+        var $val = $par.find('[post-name]');
+        var $check = $par.find('[rule]');
+        var $nece = $par.find('[notnull]');
+        var data = Tools.analyseData($el, 'post');
+        var url = data.url;
+        var err = false;
+        var $errTar = null;
+        //验证 是否为空
+        $.each($nece, function (k, v) {
+            if (!$.trim($(v).val())) {
+                $errTar = $(v);
+                err = true;
+                return false;
+            }
+        });
+        if (err) {
+            Tools.dialog("此项不能为空");
+            $errTar.focus();
+            return false;
+        }
+        //验证
+        $.each($check, function (k, v) {
+            rule = $(v).attr('rule');
+            val = $(v).val();
+            error = $(v).attr('error');
+            ret = check(rule, val, error);
+            if (!ret) {
+                err = true;
+                return false;
+            }
+        });
+        if (err) {
+            return false;
+        }
+
+        //取得所有input val
+        $.each($val, function (k, v) {
+            data[$(v).attr('post-name')] = $(v).val();
+        });
+        delete data.url;
+        //自定义处理data的函数
+        var beforePost = $el.attr('beforePost');
+        if (typeof window[beforePost] === 'function') {
+            data = window[beforePost](data, $par);
+        }
+
+        if (this.ajaxing) {
+            return false;
+        }
+        this.ajaxing = true;
+        this.ajax = $.ajax({
+            url: url,
+            data: data,
+            type: 'post',
+            dataType: 'json'
+        });
+        //成功
+        this.ajax.then(function (data) {
+            //如果按钮上有success函数
+            if (typeof(data) == "object") {
+                if (data.retcode == 2000000) {
+                    var success = $el.attr('success');
+                    if (typeof window[success] === 'function') {
+                        window[success](data, 'success');
+                    }
+                    else {
+                        Tools.dialog(data.msg);
+                    }
+                } else {
+                    var fail = $el.attr('fail');
+                    if (typeof window[fail] === 'function') {
+                        window[fail](data, 'fail');
+                    }
+                    else {
+                        Tools.dialog(data.msg);
+                    }
+                }
+            } else {
+                Tools.dialog('请求失败');
+            }
+        });
+        //失败
+        this.ajax.fail(function (data) {
+            //如果按钮上有fail函数
+            var afterPost = $el.attr('afterPost');
+            if (typeof window[afterPost] === 'function') {
+                window[afterPost](data, 'fail');
+            }
+            else {
+                Tools.dialog('请求失败');
+            }
+        });
+        //结束
+        this.ajax.complete(function () {
+            me.ajaxing = false;
+        });
+    });
+
+    var Tools = {
+        /* dialog对话框
+         * @param html(string)              窗体内容
+         * @param title(string)             窗体标题
+         * @param contentClass(string)      窗体class
+         * @param width(num)                窗体宽
+         * @param time(num)                 窗体自动关闭时间
+         * @param closeCallback(fn)         窗体关闭后的回调
+         */
+        dialog: function (cfg) {
+            function Dialog(cfg) {
+                var me = this;
+                var _default = {
+                    html: '谁还没有个默认值呀~',
+                    title: '提示',
+                    contentClass: '',
+                    width: 300,
+                    time: null,
+                    closeCallback: null,
+                    auto: null
+                };
+                //直接传入字符串
+                if (cfg.constructor === String) {
+                    var temp = cfg;
+                    cfg = {};
+                    cfg.html = temp;
+                }
+
+                this.opt = $.extend({}, _default, cfg);
+                this.size = {
+                    x: $(document).width(),
+                    y: Math.max($(document).height(), $(window).height()),
+                    scrollTop: $(document).scrollTop()
+                };
+                this.open();
+            };
+
+            Dialog.prototype.open = function () {
+                var self = this,
+                    opt = this.opt,
+                    size = this.size,
+                    mask = $('<div></div>'),
+                    content = $('<div class=' + opt.contentClass + '>\
+                             <div class="dialog-title">' + opt.title + '<a class="dialog-close" href="javascript:">×</a></div>\
+                             <div class="dialog-content">' + opt.html + '</div>\
+                         </div>');
+                this.mask = mask;
+                this.content = content;
+                mask.css({
+                    'width': '100%',
+                    'height': size.y + 'px',
+                    'position': 'absolute',
+                    'left': 0,
+                    'top': 0,
+                    'z-index': 10000,
+                    'background': '#000',
+                    'opacity': '0.2',
+                    'filter': 'alpha(opacity=20)'
+                });
+                content.css({
+                    'position': 'fixed',
+                    'width': opt.width + 'px',
+                    'left': '-9999px',
+                    'top': '-9999px',
+                    'background': '#fefefe',
+                    'border-radius': '4px',
+                    'box-shadow': '0 0 10px #555',
+                    'text-align': 'center',
+                    'z-index': 10010
+                });
+                content.find('.dialog-title').css({
+                    'background': '#f1f1f1',
+                    'border-radius': '4px 4px 0 0',
+                    'border-bottom': '1px solid #fff',
+                    'height': '40px',
+                    'line-height': '32px',
+                    'font-weight': 'bold',
+                    'text-align': 'left',
+                    'padding-left': '15px'
+                });
+                content.find('.dialog-close').css({
+                    'position': 'absolute',
+                    'top': '1px',
+                    'right': '15px',
+                    'font-size': '18px'
+                }).click(function () {
+                    self.close();
+                    opt.closeCallback && opt.closeCallback();
+                });
+                content.find('.dialog-content').css({
+                    'padding': '10px 0'
+                });
+                mask.appendTo($('body'));
+                content.appendTo($('body'));
+
+                var tarPos = {
+                    'top': ($(window).height() - content.height()) / 2,
+                    'left': (size.x - opt.width) / 2
+                };
+                content.css({
+                    'top': tarPos.top - 50 + 'px',
+                    'left': tarPos.left + 'px',
+                    'opacity': 0,
+                    'filter': 'alpha(opacity=0)'
+                }).animate({
+                    'top': tarPos.top + 'px',
+                    'opacity': 1,
+                    'filter': 'alpha(opacity=100)'
+                }, 300);
+                //自动关闭
+                if (opt.time) {
+                    opt.auto = setTimeout(function () {
+                        self.close();
+                        opt.closeCallback && opt.closeCallback();
+                    }, opt.time);
+                }
+            };
+
+            Dialog.prototype.close = function () {
+                var me = this,
+                    opt = this.opt,
+                    mask = this.mask,
+                    content = this.content;
+                mask.fadeOut(100, function () {
+                    mask.remove();
+                    content.remove();
+                    me.globalDialog = null;
+                    opt.closeCallback && opt.closeCallback();
+                });
+            };
+
+            return this.globalDialog = new Dialog(cfg);
+        },
+        analyseData: function ($obj, key) {
+            if (!$obj || !$obj.length || !$obj.attr(key)) {
+                console.log("请检查数据解析函数传入参数是否正确。");
+                return;
+            }
+            var attr = "url=" + $obj.attr(key)
+            var arr = attr.split("&");
+            var len = arr.length;
+            var data = {};
+            for (var i = 0; i < len; i++) {
+                var _arr = arr[i].split("=");
+                data[_arr[0]] = _arr[1];
+            }
+            return data;
+        }
+    };
+
+    function check(rule, value, error) {
+        switch (rule) {
+            case 'phone':
+                reg = /^1[3456789][0-9]{9}$/;
+                if (!reg.test(value)) {
+                    alert("手机号码格式不正确");
+                    return false;
+                }
+                break;
+            case 'mail':
+                reg = /^[\w.-]+@[\w.-]*$/;
+                if (!reg.test(value)) {
+                    alert("邮箱地址格式不正确");
+                    return false;
+                }
+                break;
+            case 'digit':
+                reg = /^[\d]+$/;
+                if (!reg.test(value)) {
+                    alert(error);
+                    return false;
+                }
+                break;
+        }
+        return true;
+    }
+
+    $(function () {
+        $(window).bind("load resize", function () {
+            width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+            if (width < 768) {
+                $('div.sidebar-collapse').addClass('collapse');
+                $("#side-menu-icon").show();
+                $($("#side-menu > li")[0]).hide();
+            } else {
+                $('div.sidebar-collapse').removeClass('collapse');
+                $("#side-menu-icon").hide();
+                $($("#side-menu > li")[0]).show();
+            }
+        });
+        $('#side-menu').metisMenu();
+    });
+
+    // 生成弹窗 如果只传第一个参数必须是url地址
+    function openDialog(id, url) {
+        if (arguments.length === 1) { // 兼容优化处理，仅需要传入url地址即可
+            url = id;
+            id = 'Modal';
+        }
+        if ($('#' + id).size() < 1) {
+            var dialogHtml = '<div class="modal fade" id="' + id + '" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"></div></div></div>';
+            $('body').append(dialogHtml);
+        }
+
+        $.get(url, function (data) {
+            if (data.retcode && data.retcode != 2000000) {
+                alert(data.msg.replace(/<.*>/, ''));
+            } else {
+                $('#' + id).modal({remote: url}).on('hidden.bs.modal', function (e) {
+                    $(this).removeData("bs.modal");
+                });
+            }
+        });
+    }
+
+    // 刷新当前页
+    function refresh() {
+        window.location.reload();
+    }
+
+    // 跳转指定页面
+    function jumpUrl(url) {
+        window.location.href = url;
+    }
+
+    //空验证
+    function isNull2(col, id) {
+        var value = document.getElementById(id).value;
+        if (value == "" || value == null) {
+
+            //console.log(tip);
+            var tip = id.substring(0, 2) + "tip";
+            $('#' + tip).html("请填写" + col);
+            $('#' + id).focus();
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    //js获取指定的cookie的值
+    function getCookie(name) {
+        var cookieArray = document.cookie.split("; "); //得到分割的cookie名值对
+
+        for (var i = 0; i < cookieArray.length; i++) {
+            var arr = cookieArray[i].split("=");       //将名和值分开
+            if (arr[0] == name)return unescape(arr[1]); //如果是指定的cookie，则返回它的值
+        }
+        return "";
+    }
+
+    //设置cookie
+    function setCookie(name, value, hours, path, domain, secure) {
+        var cdata = name + "=" + value;
+        if (hours) {
+            var d = new Date();
+            d.setHours(d.getHours() + hours);
+            cdata += "; expires=" + d.toGMTString();
+        }
+        cdata += path ? ("; path=" + path) : "";
+        cdata += domain ? ("; domain=" + domain) : "";
+        cdata += secure ? ("; secure=" + secure) : "";
+        document.cookie = cdata;
+    }
+
+    // 清除cookie
+    function clearCookie() {
+        var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+        if (keys) {
+            for (var i = keys.length; i--;)
+                document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
+        }
+    }
+
+    //删除指定名称的cookie
+    function delCookie(name) {
+        document.cookie = name + '=0;expires=' + new Date(0).toUTCString()
+    }
+
+    //查找数组
+    function inArray(arr, val) {
+        var ret = false, i = 0, len = arr.length;
+        for (; i < len; i++) {
+            if (arr[i] === val) { // 强类型校验
+                ret = true;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    function selectAll(name) { // 全选框
+        var i = 1;
+        $(name).change(function () {
+            if (i % 2 == 1) $("input[name='check']").prop("checked", true);
+            if (i % 2 == 0) $("input[name='check']").prop("checked", false);
+            i++;
+        });
+    }
+
+    function formatMoney(name) {
+        $(name).keyup(function () {
+            //如果输入非数字，则替换为''，如果输入数字，则在每4位,分隔
+            this.value = this.value.replace(/[,]/g, '').replace(/(\d)(?=(\d{4})+(?!\d))/g, "$1,");
+        });
+    }
+
+    function decimal(name) {
+        $(name).blur(function () {
+            //保留两位小数
+            var f = parseFloat(this.value);
+            if (isNaN(f)) {     //检查空
+                return false;
+            }
+            f = Math.round(this.value * 100) / 100;  //如有2位以上小数，则截取
+
+            var s = f.toString();
+            var rs = s.indexOf('.');    //判断有无小数点
+            if (rs < 0) {
+                rs = s.length;
+                s += '.';           //补充小数点
+            }
+            while (s.length <= rs + 2) {
+                s += '0';          //补充0
+            }
+            this.value = s;
+        });
+    }
+
+
+    function url(url) {
+        return '<?= APP_ADMIN_PATH ?>' + (url ? url : '');
+    }
+
+    $("#side-menu-icon").click(function () {
+        if ($("#side-menu").parent().hasClass("collapse")) {
+            $("#side-menu").parent().removeClass("collapse");
+        } else {
+            $("#side-menu").parent().addClass("collapse");
+        }
+    });
+
+    if (typeof (TableTools) != "undefined") {
+        TableTools.DEFAULTS.aButtons = ["csv"];
+    }
+    $.extend($.fn.dataTable.defaults, {
+        initComplete: function () {
+            var api = this.api();
+            api.columns().eq(0).each(function (colIdx) {
+                th = api.columns(colIdx).header().toJQuery();
+                if (th.hasClass("add_search")) {
+                    var column = api.column(colIdx);
+                    title = th.text();
+                    $('<input type="text" class="search_input inline" placeholder="搜索' + title +
+                        '" style="width: 100px;margin-left: 8px">')
+                        .appendTo('#search_area')
+                        .on('keyup change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val).draw();
+                        });
+                }
+            });
+        },
+        "dom": '<"top">rt<"bottom"p><"clear">',
+        "iDisplayLength": 10,
+        "deferRender": true,
+        "processing": true,
+        "lengthMenu": [10, 100, 1000, 10000],
+        "language": {
+            "sLengthMenu": "每页显示 _MENU_ 条记录",
+            "sZeroRecords": "抱歉， 没有找到",
+            "sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+            "sInfoEmpty": "没有数据",
+            "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "前一页",
+                "sNext": "后一页",
+                "sLast": "尾页"
+            }
+        }
+    });
+
+    $(document).ready(function(){
+
+        $('li[role=ajax-tab][class=active]').each(function(index, li){
+            ajaxTab(li);
+        });
+        $('li[role=ajax-tab]').click(function(){
+            ajaxTab(this);
+        });
+        $('li[role=ajax-tab] a').click(function(e){
+            e.preventDefault();
+        });
+
+        FastClick.attach(document.body);
+    });
+
+    //tabajax
+    function ajaxTab(target){
+        var $target = $(target);
+        var $par = $(target).closest('[role=tabpanel]');
+        var $cont = $par.find('[role=tabpanel]');
+        var index = $target.index();
+        var url = $target.find('a').attr('href');
+        $target.addClass('active');
+        $target.siblings().removeClass('active');
+        if(target.lock){
+            return false;
+        }
+        target.lock = true;
+        $.ajax({
+            url: url,
+            type: 'get',
+            timeout: 100000,
+            success: function(data){
+                $cont.eq(index).html(data).show().siblings().hide();
+            },
+            error: function(data){
+                console.log(data);
+            },
+            complete: function(){
+                target.lock = false;
+            }
+        });
+    }
+
+</script>

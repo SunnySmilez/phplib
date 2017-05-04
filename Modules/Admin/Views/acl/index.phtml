@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>权限管理</title>
+    <?php include(APPLICATION_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+</head>
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <?php echo $menuview; ?>
+
+            <!-- 内容区域 -->
+            <div class="right_col" role="main">
+
+				<div class="page-title clearfix">
+                    <div class="title_left">
+                        <h3>权限管理</h3>
+                    </div>
+                </div>
+
+				<div class="table-responsive noborder">
+					<div class="acltip">
+						<h5>权限控制说明</h5>
+						<ul style="margin-left:32px;">
+							<li>管理员不受权限控制管理，均可访问</li>
+							<li>没有特殊用途的deny无需设置，默认禁止访问</li>
+							<li>权限控制顺序：<strong>user &gt; group &gt; deny &gt; allow</strong></li>
+							<?php if ($type == 'uid') { ?>
+								<li>用户特权：<strong>针对特殊用户的权限，请勿将用户组的权限单独付给某用</strong></li>
+							<?php } ?>
+						</ul>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead>
+							<tr>
+								<th>控制器/方法</th>
+								<th>名称</th>
+								<th>分配权限</th>
+							</tr>
+							</thead>
+							<tbody>
+							<?php foreach ((array)$actions as $m=>$act) { ?>
+								<tr class="scontroller">
+									<td><?=$m?></td>
+									<td><?=$act['name']?></td>
+									<td class="action_option">&nbsp;</td>
+								</tr>
+								<?php if (is_array($act['methods'])) { foreach ($act['methods'] as $k=>$a) { ?>
+									<tr style="background-color:#ffffff">
+										<td class="sactions" style="text-align: right;"><?=$k?></td>
+										<td><?php echo $a['name']; !empty($a['show']) && print(' ['. $a['show'] .']');?></td>
+										<td class="action_option">&nbsp;</td>
+									</tr>
+								<?php } } ?>
+							<?php } ?>
+                                <tr class="scontroller"><td style="padding:0px;" colspan="3"></td></tr>
+							</tbody>
+						</table>
+						<input type="hidden" id="<?=$type?>" name="<?=$type?>" value="<?=$id ?>" />
+					</div>
+					<button id="submit" class="btn btn-success">提交</button>
+					<br>
+					<br>
+				</div>
+
+			</div>
+			<!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    Welcome to New Admin ！
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+
+<script type="text/javascript">
+
+	$(document).ready(function () {
+		var _type = '<?=$type ?>', _id=$('#'+_type).val();
+
+		(function(){
+			var data = <?=$data?> || {};
+			if (_type != 'id') {
+				var options = '<select name="options"><option value="">选择访问权限</option><option value="deny">禁止访问</option><option value="allow">可以访问</option></select>';
+			} else {
+
+				var options = '<select name="options"><option value="">所有人都不可用</option><option value="allow">所有人可用</option></select>';
+			}
+			var controller = '';
+			$(".action_option").each(function(){
+				var that = $(this), parent = that.parent(), action = option = null;
+				//controller
+				if (parent.hasClass('scontroller')) {
+					controller = that.prev().prev().text();
+					option = (data[controller] && typeof(data[controller].option) != 'undefined') ? data[controller].option : null;
+				} else {	//action
+					action = that.prev().prev().text();
+					option = (data[controller] && data[controller].action && typeof(data[controller].action[action]) != 'undefined') ? data[controller].action[action] : null;
+				}
+
+				//载入默认配置
+				if (option !== null) {
+					$(options).val(option).appendTo(that);
+				} else {
+					$(this).html(options);
+				}
+			});
+		})();
+
+		$(".stable > tbody > tr").removeClass('trodd');
+		$(".scontroller").addClass('trodd');
+
+
+		$('select').change(function(){
+			//scontroller	修改controller访问权限时，联动修改action
+			var val = $(this).val(), parent = pp = $(this).parent().parent();
+			if (parent.hasClass('scontroller')) {
+				for (var controller = parent.next(); !controller.hasClass('scontroller'); controller = controller.next()) {
+					var select = controller.find('.action_option > select').val(val);
+					if (select.html() === null) {
+						break;
+					}
+				}
+			}
+
+			//与控制器访问权限不同的提示
+
+			//去除背景色
+			//pp.removeClass('bgclick');
+		});
+
+
+		/**
+		 * 将json转换为字符串（有局限性）
+		 * @return string
+		 */
+		var json2str = function (JSON){
+			var json = [];
+			for (var key in JSON){
+				if (typeof JSON[key] != 'object') {
+					json.push( '"' + key + '"' + ":" + ((JSON[key] != null && JSON[key] != "") ? '"' + JSON[key] + '"' : '""') );
+				} else {
+					json.push( '"' + key + '"' + ":" + ((JSON[key] != null) ? json2str(JSON[key]) : '""') );
+				}
+			}
+			// alert(json.join(","));
+			return "{" + json.join(",") + "}";
+		};
+
+		$('#submit').click(function(){
+			var controller = '', data = {};
+			$(".action_option").each(function(){
+				var that 	= $(this), parent = that.parent(), action = null;
+				var option 	= that.children().val();
+				if (parent.hasClass('scontroller')) {
+					controller = that.prev().prev().text();
+					data[controller] = option;
+				} else {	//action
+					action = that.prev().prev().text();
+					data[controller+'-'+action] = option;
+				}
+
+			});
+			var postdata = {"data":json2str(data)};
+			postdata[_type] = _id;
+
+			$.post(url('/acl/accesscontrol'), postdata, function(ret){
+                alert(ret.msg);
+			}, 'json');
+		});
+	});
+</script>
+</body>
+
+</html>
+
+
+
