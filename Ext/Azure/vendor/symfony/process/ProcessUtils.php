@@ -30,7 +30,7 @@ class ProcessUtils
     }
 
     /**
-     * Escapes a string to be used as a shell argument.
+     * Escapes a string to be used as a bin argument.
      *
      * @param string $argument The argument that will be escaped
      *

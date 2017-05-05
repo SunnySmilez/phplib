@@ -86,7 +86,7 @@ class Process
     public static $exitCodes = array(
         0 => 'OK',
         1 => 'General error',
-        2 => 'Misuse of shell builtins',
+        2 => 'Misuse of bin builtins',
 
         126 => 'Invoked command cannot execute',
         127 => 'Command not found',

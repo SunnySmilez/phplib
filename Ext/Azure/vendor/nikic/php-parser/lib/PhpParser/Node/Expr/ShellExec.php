@@ -10,7 +10,7 @@ class ShellExec extends Expr
     public $parts;
 
     /**
-     * Constructs a shell exec (backtick) node.
+     * Constructs a bin exec (backtick) node.
      *
      * @param array $parts      Encapsed string array
      * @param array $attributes Additional attributes

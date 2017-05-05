@@ -16,7 +16,7 @@ namespace Symfony\Component\Finder\Iterator;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * Iterate over shell command result.
+ * Iterate over bin command result.
  *
  * @author Jean-François Simon <contact@jfsimon.fr>
  *
@@ -50,7 +50,7 @@ class FilePathsIterator extends \ArrayIterator
     private $current;
 
     /**
-     * @param array  $paths   List of paths returned by shell command
+     * @param array  $paths   List of paths returned by bin command
      * @param string $baseDir Base dir for relative path building
      */
     public function __construct(array $paths, $baseDir)

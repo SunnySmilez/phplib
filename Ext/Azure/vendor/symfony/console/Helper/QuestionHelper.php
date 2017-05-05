@@ -407,9 +407,9 @@ class QuestionHelper extends Helper
     }
 
     /**
-     * Returns a valid unix shell.
+     * Returns a valid unix bin.
      *
-     * @return string|bool The valid shell name, false in case no valid shell is found
+     * @return string|bool The valid bin name, false in case no valid bin is found
      */
     private function getShell()
     {

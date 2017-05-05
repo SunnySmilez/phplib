@@ -18,7 +18,7 @@ use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Process\PhpExecutableFinder;
 
 /**
- * A Shell wraps an Application to add shell capabilities to it.
+ * A Shell wraps an Application to add bin capabilities to it.
  *
  * Support for history and completion only works with a PHP compiled
  * with readline support (either --with-readline or --with-libedit)
@@ -55,7 +55,7 @@ class Shell
     }
 
     /**
-     * Runs the shell.
+     * Runs the bin.
      */
     public function run()
     {
@@ -124,7 +124,7 @@ EOF
     }
 
     /**
-     * Returns the shell header.
+     * Returns the bin header.
      *
      * @return string The header string
      */
@@ -132,12 +132,12 @@ EOF
     {
         return <<<EOF
 
-Welcome to the <info>{$this->application->getName()}</info> shell (<comment>{$this->application->getVersion()}</comment>).
+Welcome to the <info>{$this->application->getName()}</info> bin (<comment>{$this->application->getVersion()}</comment>).
 
 At the prompt, type <comment>help</comment> for some help,
 or <comment>list</comment> to get a list of available commands.
 
-To exit the shell, type <comment>^D</comment>.
+To exit the bin, type <comment>^D</comment>.
 
 EOF;
     }

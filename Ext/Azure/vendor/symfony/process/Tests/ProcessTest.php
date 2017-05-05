@@ -543,7 +543,7 @@ class ProcessTest extends \PHPUnit_Framework_TestCase
         $p->setAccessible(true);
 
         $p->setValue($process, 2);
-        $this->assertEquals('Misuse of shell builtins', $process->getExitCodeText());
+        $this->assertEquals('Misuse of bin builtins', $process->getExitCodeText());
     }
 
     public function testStartIsNonBlocking()

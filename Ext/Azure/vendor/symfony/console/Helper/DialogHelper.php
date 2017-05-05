@@ -430,9 +430,9 @@ class DialogHelper extends InputAwareHelper
     }
 
     /**
-     * Return a valid Unix shell.
+     * Return a valid Unix bin.
      *
-     * @return string|bool The valid shell name, false in case no valid shell is found
+     * @return string|bool The valid bin name, false in case no valid bin is found
      */
     private function getShell()
     {
