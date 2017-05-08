@@ -111,18 +111,26 @@
 
 ### 使用
 
-使用docker快速构建一个开发环境
+#### 使用docker快速构建一个新的项目
 
-app名为demo 域名为demo.com
+> app名为demo 域名为demo.com
 
 ```shell
-docker run -itd --name -p 80:80 -v phplib:/data1/htdocs/phplib test php
+docker run -itd --name test -p 80:80 -v /home/phplib:/data1/htdocs/phplib -v /home/demo:/data1/htdocs/demo php
 docker exec -it test /usr/local/php/bin/php /data1/htdocs/phplib/Build/cg.php demo demo.com admin
 ```
 
 访问
 
 ```shell
-curl http://127.0.0.1/ -H 'Host:demo.com'
+curl -v http://127.0.0.1/ -H 'Host:demo.com'
+```
+
+#### 使用docker快速构建一个已有项目
+
+
+```shell
+docker build -t demo .
+docker run -itd --name my_demo -p 80:80 -v /home/phplib:/data1/htdocs/phplib -v /home/demo:/data1/htdocs/demo demo
 ```
 

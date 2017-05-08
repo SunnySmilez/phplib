@@ -75,7 +75,7 @@ exec("service nginx reload");
 //执行命令 创建数据库
 exec("mysql -h127.0.0.1 -u{$db_root_name} -p{$db_root_pwd} < $app_path/build.sql");
 //创建日志文件夹  改变日志文件夹及静态资源文件夹的权限
-exec("mkdir -p /data2/logs/{$app_name} ;chown www.www /data2/logs/{$app_name}");
+exec("mkdir -p /data2/logs/{$app_name} ;chmod 777 /data2/logs/{$app_name}");
 exec("mkdir -m 0777 $app_path/public/static");
 //shell目录下的脚本加上执行权限
 exec("chmod -R 0777 $app_path/bin/");
