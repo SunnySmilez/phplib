@@ -70,12 +70,12 @@ foreach ($arrFiles as $file) {
     file_put_contents($app_file, $content);
 }
 //cp docker nginx配置
-file_put_contents("/etc/nginx/vhosts/" . $app_domain . ".conf", str_replace("@appdomain@", $app_domain, file_get_contents(dirname(__FILE__) . "/nginx/template.conf")));
+file_put_contents("/etc/nginx/vhosts/" . $app_domain . ".conf", str_replace("@appdomain@", $app_domain, file_get_contents(dirname(__FILE__) . "/build/nginx/vhosts/template.conf")));
 exec("service nginx reload");
 //执行命令 创建数据库
 exec("mysql -h127.0.0.1 -u{$db_root_name} -p{$db_root_pwd} < $app_path/build.sql");
 //创建日志文件夹  改变日志文件夹及静态资源文件夹的权限
-exec("mkdir -p /data2/logs/{$app_name} ;chmod 777 /data2/logs/{$app_name}");
+exec("mkdir -p /data1/logs/{$app_name} ;chmod 777 /data1/logs/{$app_name}");
 exec("mkdir -m 0777 $app_path/public/static");
 //shell目录下的脚本加上执行权限
 exec("chmod -R 0777 $app_path/bin/");
