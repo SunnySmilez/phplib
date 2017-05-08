@@ -35,6 +35,6 @@ return array(
      * 空间命名规范 建议使用 private-appname-suffix 的形式  suffix可任意
      */
     'space' => array(
-        'private-beebank-demo',
+        'private-company-demo',
     )
 );
