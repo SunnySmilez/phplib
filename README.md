@@ -111,6 +111,8 @@
 
 ### 使用
 
+> 使用镜像 https://github.com/ifintech/rdbuild/tree/master/docker/php
+
 #### 使用docker快速构建一个新的项目
 
 > app名为demo 域名为demo.com
