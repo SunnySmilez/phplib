@@ -10,8 +10,8 @@ abstract class Abstraction {
             'x-rid' => \S\Request::server('x-rid')?:null,
             'server_ip' => \S\Util\Ip::getServerIp(),
             'client_ip' => \S\Util\Ip::getClientIp(),
-            'uri'   => $request->getControllerName(),
-            'params' => json_encode($request->getParams()),
+            'uri'   => \Core\Env::getControllerName(true),
+            'params' => json_encode($request->getParams() ?: $_REQUEST),
         );
 
         $common = array_merge($common, \S\Log\Context::getCommonInfo());
