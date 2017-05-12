@@ -628,7 +628,7 @@ class Mysql {
             $debug_sql = substr_replace($debug_sql, $param, strpos($debug_sql, "?"), 1);
         }
 
-        if (!\Core\Env::isProductEnv()) {
+        if (!\Core\Env::isProductEnv() && \Core\Env::getModuleName() != "Admin") {
             file_put_contents('/data1/logs/' . APP_NAME . '/sql.log', date('Y-m-d H:i:s') . ' | ' . \S\Request::server('PATH_INFO') .
                 ' | ' . \S\Request::server('x-rid') . ' | ' . str_replace(array("\r", "\n"), ' ', $debug_sql) . "\n", FILE_APPEND);
         }
