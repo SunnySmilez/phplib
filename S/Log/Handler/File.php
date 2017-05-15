@@ -4,7 +4,7 @@ namespace S\Log\Handler;
 class File extends Abstraction {
 
     public function write($key, $message) {
-        $file_path = '/data2/logs/' . APP_NAME . '/' . $key;
+        $file_path = '/data1/logs/' . APP_NAME . '/' . $key;
         $dir_path  = dirname($file_path);
         if (!is_dir($dir_path)) {
             mkdir($dir_path, 0777, true);
