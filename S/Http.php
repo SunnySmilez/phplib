@@ -122,9 +122,10 @@ class Http {
             throw new Exception('invalid http method:' . $method);
         }
 
-        if ($this->_is_private_req && is_array($data)) {
-            $options['headers'] = array_merge((array)$options['headers'], $this->_getPrivateRequestHeaders($data));
-        }
+        //todo 应用网关依赖 等待应用网关上线时再使用
+//        if ($this->_is_private_req && is_array($data)) {
+//            $options['headers'] = array_merge((array)$options['headers'], $this->_getPrivateRequestHeaders($data));
+//        }
         if (!$this->_checkOptions($options)) {
             throw new Exception('invalid options');
         }
