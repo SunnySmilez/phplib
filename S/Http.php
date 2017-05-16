@@ -91,6 +91,17 @@ class Http {
         $config['http_errors']     = true;
         $config['verify']          = false;
 
+        // 区分公网请求和私网请求
+        $hostname = parse_url($base_uri);
+        $request_ip = gethostbyname($hostname['host']);
+        if (\S\Util\Ip::isPrivateIp($request_ip)) {
+            $this->_is_private_req = true;
+        } else {
+            if(\Core\Env::isProductEnv()){
+                $config['proxy'] = ($options['proxy'] ?: "http://10.0.2.5:3128");
+            }
+        }
+
         $this->_client = new \GuzzleHttp\Client(array_merge($config, $options));
     }
 
