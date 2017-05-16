@@ -43,7 +43,7 @@ class Timelog {
      * execute_time: 注意此参数用于定义log顺序，不需要在程序中设置
      * extension: array 额外的参数
      */
-    private $_log_item = array('type', 'idc', 'class', 'method', 'resource', 'params', 'exectime', 'extension');
+    private $_log_item = array('res_type', 'idc', 'class', 'method', 'resource', 'params', 'exectime', 'extension');
 
     /**
      * 阈值，需要根据不同的业务实现定义，单位ms

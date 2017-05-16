@@ -23,8 +23,14 @@ class Lock {
      * @return bool
      */
     public static function mutexLock($lock_id, $expire = self::DEFAULT_EXPIRE) {
+        /**
+         * @var $redis \Redis
+         */
         $redis = new \S\Db\Redis();
-        $ret = $redis->set($lock_id, self::DEFAULT_VALUE, array('nx', 'ex'=>$expire));
+        //todo redis版本低的暂时解决方案
+        $ret = $redis->setnx($lock_id, self::DEFAULT_VALUE);
+        $redis->expire($lock_id, $expire);
+//        $ret = $redis->set($lock_id, self::DEFAULT_VALUE, array('nx', 'ex'=>$expire));
         return $ret?true:false;
     }
 
