@@ -8,7 +8,13 @@ class TestCase extends \PHPUnit\Framework\TestCase {
     protected static $_app;
 
     public static function setUpBeforeClass(){
-        self::$_app = (new \Yaf\Application(APP_CONF . '/application.ini'))->bootstrap();
+        $application = \Yaf\Registry::get('application');
+        if (!$application) {
+            self::$_app = (new \Yaf\Application(APP_CONF . '/application.ini'))->bootstrap();
+            \Yaf\Registry::set('application', self::$_app);
+        }else{
+            self::$_app = $application;
+        }
     }
 
     protected function execRequest($method, $controller, $params = array()){
