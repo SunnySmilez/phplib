@@ -41,7 +41,7 @@ then
     #重启daemon
     nohup /usr/bin/php /data1/htdocs/loans/jobs/job.php Jobs_Daemon_Master >> /tmp/nohup.loans.Daemon.log 2>&1 &
     #重启phpfpm
-    kill -URS2 `cat /usr/local/php/var/run/php-fpm.pid`
+    kill -USR2 `cat /usr/local/php/var/run/php-fpm.pid`
 
     echo "succ"
 fi
