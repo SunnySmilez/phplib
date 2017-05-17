@@ -66,6 +66,8 @@ class Captcha {
 
         if (\Core\Env::isPhpUnit()) {
             \Yaf\Registry::set('captcha', $this->code);
+        }elseif(!\Core\Env::isProductEnv()){
+            \S\Log\Context::setInfo(array('captcha_code' => $this->code));
         }
     }
 
