@@ -38,7 +38,7 @@
    - 配置
    - 异常处理
 
-![http://www.laruence.com/manual/images/yaf_sequence.png]()
+![](http://www.laruence.com/manual/images/yaf_sequence.png)
 
 2. 公司级框架和类库共享
    - 统一封装工具类库
