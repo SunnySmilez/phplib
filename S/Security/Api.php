@@ -81,7 +81,7 @@ class Api {
 
         //如果有设置过期时间 则检测time是否过期
         if ($expire = self::getApiExpire($config_key)) {
-            $now = microtime(true);
+            $now = time();
             if (abs($now - $time) > $expire) {
                 throw new \Base\Exception\Controller(self::CHECK_TIME_ERROR, self::CHECK_TIME_NO);
             }
