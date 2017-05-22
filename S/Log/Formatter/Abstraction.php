@@ -10,7 +10,7 @@ abstract class Abstraction {
             'x-rid' => \S\Request::server('x-rid')?:null,
             'server_ip' => \S\Util\Ip::getServerIp(),
             'client_ip' => \S\Util\Ip::getClientIp(),
-            'uri'   => \Core\Env::getControllerName(true),
+            'uri'   => \Core\Env::getControllerName(true) ?: $request->getControllerName(),
             'params' => $request->getParams() ?: $_REQUEST,
         );
 
