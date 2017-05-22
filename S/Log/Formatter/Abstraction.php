@@ -11,7 +11,7 @@ abstract class Abstraction {
             'server_ip' => \S\Util\Ip::getServerIp(),
             'client_ip' => \S\Util\Ip::getClientIp(),
             'uri'   => \Core\Env::getControllerName(true) ?: $request->getControllerName(),
-            'params' => $request->getParams() ?: $_REQUEST,
+            'params' => $_REQUEST ?: $request->getParams(),
         );
 
         $common = array_merge($common, \S\Log\Context::getCommonInfo());
