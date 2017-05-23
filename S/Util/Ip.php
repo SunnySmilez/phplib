@@ -32,6 +32,11 @@ class Ip {
             }
         }
 
+        //如果有端口号 则去除
+        if($ip){
+            $ip = explode(":", $ip)[0];
+        }
+
         return $ip;
     }
 

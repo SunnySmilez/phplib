@@ -21,7 +21,7 @@ create table if not exists admin_acl_group (
 drop table if exists admin_user_groups;
 create table if not exists admin_user_groups (
   `gid`         int unsigned not null auto_increment                                        comment '组id',
-  `gname`       varchar(16)  not null                                                       comment '组名',
+  `gname`       varchar(64)  not null                                                       comment '组名',
   `description` varchar(255) not null default ''                                            comment '备注',
   `ctime`       timestamp    not null default current_timestamp                             comment '记录创建时间',
   `mtime`       timestamp    not null default current_timestamp on update current_timestamp comment '记录最近修改时间',
@@ -32,7 +32,7 @@ create table if not exists admin_user_groups (
 drop table if exists admin_menu_main;
 create table if not exists admin_menu_main (
   `mid`         int unsigned not null auto_increment                                        comment '菜单id',
-  `mname`       varchar(16)  not null                                                       comment '菜单名称',
+  `mname`       varchar(64)  not null                                                       comment '菜单名称',
   `description` varchar(255) not null default ''                                            comment '备注',
   `order`       tinyint      not null                                                       comment '顺序',
   `ctime`       timestamp    not null default current_timestamp                             comment '记录创建时间',
@@ -45,7 +45,7 @@ drop table if exists admin_menu_sub;
 create table if not exists admin_menu_sub (
   `id`         int         unsigned not null auto_increment                               comment '子菜单id',
   `mid`        int         unsigned not null                                              comment '一级菜单id',
-  `uname`      varchar(16) not null                                                       comment '子菜单名称',
+  `uname`      varchar(64) not null                                                       comment '子菜单名称',
   `controller` varchar(64) not null                                                       comment '控制器类名',
   `action`     varchar(64) not null                                                       comment '控制器下的action方法',
   `order`      tinyint     not null default 0                                             comment '顺序',

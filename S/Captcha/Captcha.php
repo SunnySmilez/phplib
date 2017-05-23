@@ -1,5 +1,6 @@
 <?php
 namespace S\Captcha;
+
 use S\Exception;
 
 /**
@@ -36,55 +37,60 @@ use S\Exception;
  * </demo>
  *
  */
-class Captcha{
+class Captcha {
 
-    const TYPE_DIGIT   = 'digit';   //数字验证码
-    const TYPE_ENGLISH = 'english'; //英文类型验证码 大小写均有(验证时不限大小写)
+    const TYPE_DIGIT        = 'digit';   //数字验证码
+    const TYPE_ENGLISH      = 'english'; //英文类型验证码 大小写均有(验证时不限大小写)
     const TYPE_ENGLISH_LOW  = 'english_low';  //小写英文验证码(验证时不限大小写)
     const TYPE_ENGLISH_HIGH = 'english_high'; //大写英文验证码(验证时不限大小写)
-    const TYPE_MIX     = 'mix'; //混合类型验证码 包括数字 大写字母 小写字母(验证时不限大小写)
+    const TYPE_MIX          = 'mix'; //混合类型验证码 包括数字 大写字母 小写字母(验证时不限大小写)
 
     const MODE_SMS  = 'sms';
     const MODE_PIC  = 'pic';
+    const MODE_MAIL = 'mail';
 
     public $code;
 
     /**
      * 生成验证码并存储
-     * @param string $type 验证码类型 支持类型见上
-     * @param int $length  验证码的长度
-     * @param string $id   验证码id
-     * @param int $ttl     验证码有效时间 默认600秒
+     *
+     * @param string $type   验证码类型 支持类型见上
+     * @param int    $length 验证码的长度
+     * @param string $id     验证码id
+     * @param int    $ttl    验证码有效时间 默认600秒
      * @throws \S\Exception $type的类型不存在
      */
-    public function __construct($id, $type, $length, $ttl = 600){
+    public function __construct($id, $type, $length, $ttl = 600) {
         $this->code = Util::create($type, $length);
         Store::set($id, $this->code, $ttl);
 
-        if(\Core\Env::isPhpUnit()){
+        if (\Core\Env::isPhpUnit()) {
             \Yaf\Registry::set('captcha', $this->code);
+        }elseif(!\Core\Env::isProductEnv()){
+            \S\Log\Context::setInfo(array('captcha_code' => $this->code));
         }
     }
 
     /**
      * 展示验证码
+     *
      * @param string $mode 展示模式 当前支持'sms'(短信), 'image'(图片)
      * @param array  $args 参数数组
-     *          短信: array(
-                        'phone'    手机号
-     *                  'template' 正文模板 用%captcha%代替验证码的位置
-     *                  'service'  使用的短信服务 不配置则默认使用openapi的短信服务
-     *              )
-     *          图片: array(
-                        'width' 图片宽度 int 默认80
-     *                  'height'图片高度 int 默认30
-     *                  'size'  验证码文字点字体大小 int 不设置则使用默认值
-     *              )
+     *                     短信: array(
+     *                     'phone'    手机号
+     *                     'template' 正文模板 用%captcha%代替验证码的位置
+     *                     'service'  使用的短信服务 不配置则默认使用openapi的短信服务
+     *                     )
+     *                     图片: array(
+     *                     'width' 图片宽度 int 默认80
+     *                     'height'图片高度 int 默认30
+     *                     'size'  验证码文字点字体大小 int 不设置则使用默认值
+     *                     )
      * @return mixed
      * @throws Exception
      */
-    public function show($mode, array $args){
-        if(!in_array($mode, array(self::MODE_SMS, self::MODE_PIC))){
+    public function show($mode, array $args) {
+        if (!in_array($mode, array(self::MODE_SMS, self::MODE_PIC, self::MODE_MAIL))) {
             throw new Exception("captcha show mode: `{$mode}` is not support");
         }
 
@@ -103,8 +109,8 @@ class Captcha{
      * @param int    $clear    验证码的失效规则 在校验int次后失效
      * @return bool|null       成功返回true 失败时默认返回false但同时验证码失效会返回null
      */
-    public static function validate($val_code, $id, $clear = 3){
-        if(empty($val_code)){
+    public static function validate($val_code, $id, $clear = 3) {
+        if (empty($val_code)) {
             return false;
         }
 
@@ -122,7 +128,7 @@ class Captcha{
             $ret = false;
             //失败频次限制
             $check = $freq->add($rule_name, $id, $clear - 1, 600);
-            if(!$check){ //超过允许失败次数
+            if (!$check) { //超过允许失败次数
                 Store::clear($id);
                 $freq->clear($rule_name, $id);
                 $ret = null;

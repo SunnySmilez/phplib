@@ -24,7 +24,7 @@ class Timelog {
 
     const TIMELOG_NAME = 'timelog';
 
-    public static $all_log = true;
+    public static $all_log = false;
 
     /**
      * 上次运行时间，microtime(true)
@@ -145,7 +145,7 @@ class Timelog {
         }
 
         $log['exectime'] = round($log['exectime']);
-        $log['res_type'] = $res_type;
+        $log['type']     = $res_type;
         $log['idc']      = \Core\Env::getIdc();
 
         $log_filter = array();

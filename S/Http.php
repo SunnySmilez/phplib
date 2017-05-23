@@ -91,6 +91,17 @@ class Http {
         $config['http_errors']     = true;
         $config['verify']          = false;
 
+        // 区分公网请求和私网请求
+        $hostname = parse_url($base_uri);
+        $request_ip = gethostbyname($hostname['host']);
+        if (\S\Util\Ip::isPrivateIp($request_ip)) {
+            $this->_is_private_req = true;
+        } else {
+            if(\Core\Env::isProductEnv()){
+                $config['proxy'] = ($options['proxy'] ?: "http://10.0.2.5:3128");
+            }
+        }
+
         $this->_client = new \GuzzleHttp\Client(array_merge($config, $options));
     }
 
@@ -111,9 +122,10 @@ class Http {
             throw new Exception('invalid http method:' . $method);
         }
 
-        if ($this->_is_private_req && is_array($data)) {
-            $options['headers'] = array_merge((array)$options['headers'], $this->_getPrivateRequestHeaders($data));
-        }
+        //todo 应用网关依赖 等待应用网关上线时再使用
+//        if ($this->_is_private_req && is_array($data)) {
+//            $options['headers'] = array_merge((array)$options['headers'], $this->_getPrivateRequestHeaders($data));
+//        }
         if (!$this->_checkOptions($options)) {
             throw new Exception('invalid options');
         }
