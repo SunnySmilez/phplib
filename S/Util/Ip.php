@@ -3,17 +3,27 @@ namespace S\Util;
 
 class Ip {
     private static $_location_cache = null;
+    private static $server_ip;
+    private static $client_ip;
 
     public static function getServerIp(){
-        if (isset($_SERVER['SERVER_ADDR'])) {
-            return $_SERVER['SERVER_ADDR'];
-        } elseif (false) {
-
+        if(self::$server_ip){
+            return self::$server_ip;
         }
-        return '';//gethostbyname(php_uname('n'));
+
+        if (isset($_SERVER['SERVER_ADDR'])) {
+            self::$server_ip = $_SERVER['SERVER_ADDR'];
+        } elseif (\Core\Env::isCli() && isset($_SERVER['HOSTNAME'])) {
+            self::$server_ip = gethostbyname($_SERVER['HOSTNAME']);
+        }
+        return self::$server_ip ?: '';
     }
 
     public static function getClientIp() {
+        if(self::$client_ip){
+            return self::$client_ip;
+        }
+
         $ip = $_SERVER['REMOTE_ADDR'];
         if (self::isPrivateIp($ip)) {
             $xforward = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -31,13 +41,13 @@ class Ip {
                 $ip = $_SERVER['X-Forwarded-For'];
             }
         }
-
         //如果有端口号 则去除
         if($ip){
             $ip = explode(":", $ip)[0];
         }
 
-        return $ip;
+        self::$client_ip = $ip;
+        return self::$client_ip ?: '';
     }
 
     public static function isPrivateIp($ip){
