@@ -13,7 +13,7 @@ class Ip {
 
         if (isset($_SERVER['SERVER_ADDR'])) {
             self::$server_ip = $_SERVER['SERVER_ADDR'];
-        } elseif (\Core\Env::isCli() && isset($_SERVER['HOSTNAME'])) {
+        } elseif (isset($_SERVER['HOSTNAME'])) {
             self::$server_ip = gethostbyname($_SERVER['HOSTNAME']);
         }
         return self::$server_ip ?: '';
