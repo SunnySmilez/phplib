@@ -31,7 +31,7 @@ abstract class Base extends Action {
     public function displayView($tpl_vars) {
         if ($this->sys_view) {
             //使用phplib下的模板文件
-            $this->_view->setScriptPath(APPLICATION_BASE_TPL_PATH);
+            $this->_view->setScriptPath(ADMIN_BASE_TPL_PATH);
         }
 
         $this->buildMenu();
@@ -46,7 +46,7 @@ abstract class Base extends Action {
     public function getRenderView($tpl = null, array $response = array()) {
         if ($this->sys_view) {
             //使用phplib下的模板文件
-            $this->_view->setScriptPath(APPLICATION_BASE_TPL_PATH);
+            $this->_view->setScriptPath(ADMIN_BASE_TPL_PATH);
         }
 
         if (!$tpl) {
@@ -71,7 +71,7 @@ abstract class Base extends Action {
         $menu     = (new DataMenu())->getNavMenu($is_admin);
 
         $ext      = \Yaf\Application::app()->getConfig()->get('yaf.view.ext');
-        $menuview = $this->_view->render(APPLICATION_BASE_TPL_PATH . 'inc/menu.' . $ext, array('menu' => $menu));
+        $menuview = $this->_view->render(ADMIN_BASE_TPL_PATH . 'inc/menu.' . $ext, array('menu' => $menu));
         $this->_view->assign('menuview', $menuview);
 
         return true;

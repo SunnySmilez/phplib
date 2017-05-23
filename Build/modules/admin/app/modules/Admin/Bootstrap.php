@@ -2,10 +2,10 @@
 class Bootstrap extends \Base\Bootstrap {
 
     public function _initDefine(){
-        define('APPLICATION_BASE_TPL_PATH', PHPLIB . "/Modules/Admin/Views/");
+        define('ADMIN_BASE_TPL_PATH', PHPLIB . "/Modules/Admin/Views/");
         define('ADMIN_SYS_NAME', "@appname@管理系统"); // 后台管理名称
-
-        define('AUTH_BASE_URL', 'http://auth.com');  //身份认证服务地址, 根据实际进行替换
+        define('ADMIN_AUTH_BASE_URL', 'http://auth.com');  //身份认证服务地址, 根据实际进行替换
+        define('ADMIN_STATIC_PATH', 'http://static-admin.oss-cn-beijing.aliyuncs.com'); //管理后台静态资源地址
     }
 
     public function _initPlugin(\Yaf\Dispatcher $dispatcher){

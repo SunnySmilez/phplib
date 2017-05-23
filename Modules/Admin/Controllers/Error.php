@@ -29,7 +29,7 @@ class Error extends \Base\Controller\Error {
             } else {
                 $tpl_vars['retcode'] = $retcode;
                 $tpl_vars['msg']     = $msg;
-                $this->_view->display(APPLICATION_BASE_TPL_PATH."error.phtml", $tpl_vars);
+                $this->_view->display(ADMIN_BASE_TPL_PATH."error.phtml", $tpl_vars);
             }
         }
     }
