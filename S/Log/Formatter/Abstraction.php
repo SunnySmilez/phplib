@@ -14,7 +14,7 @@ abstract class Abstraction {
 
         $common = array(
             'date'      => date("Y-m-d H:i:s"),
-            'x-rid'     => \S\Request::server('x-rid') ?: null,
+            'x_rid'     => \S\Request::server('x-rid') ?: null,
             'server_ip' => \S\Util\Ip::getServerIp(),
             'client_ip' => \S\Util\Ip::getClientIp(),
             'uri'       => $uri,
