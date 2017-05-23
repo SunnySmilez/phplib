@@ -1,125 +1,32 @@
 # PHP框架
 
-### 共识
+> 可以快速开发部署的PHP业务框架，与整体研发架构相配合
+>
+> [整体思路](think.md)
 
-大家对框架共识是：
+## 依赖
 
-框架是规定了整个web服务请求实现主体流程结构。并且把web服务的流程进行抽象和分离。将复杂的业务逻辑抽象分离，使具有共同特性的模块聚集到一起，是之低耦合高复用，让业务工程师更加关注业务逻辑。
+1. PHP7.1+
 
+2. yaf/yac/redis/phpunit 稳定版
 
+3. 编译安装 
 
-### 目标
+   ```shell
+   ./configure --prefix=/usr/local/php --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-gd --with-jpeg-dir=/usr/lib64/ --with-iconv --with-openssl --with-curl --enable-pcntl --with-zlib --enable-bcmath --enable-json --enable-fpm --enable-mbstring --enable-soap --enable-opcache
+   ```
 
-我想要的还有：
-
-- 实现公司级框架和类库共享，实现公共流程封装，提升开发效率，形成公司级开发规范
-- 实现有完整逻辑的独立代码模块共享，独立入口独立加载，但有逻辑或者数据层面的交互，比如管理后台，形成高质量稳定代码，提升开发效率
-- 高度配合基础架构，形成从前端到后端，从操作系统底层到语言层面的一套架构，解决web应用高可用，高性能，高伸缩，高扩展及安全性的要求
-- 高度配合公司级研发体系，形成研发体系中的一环，与研发环境（docker容器，研发测试网络等），运维体系（代码发布，统计监控等）等会与之形成交叉。举个简单例子，你用框架做完项目上线后，监控系统自动发现注册新项目，并对其监控报警。
-- 实现分工明确，工程师水平不同分工，前后端之间分工，程序流程上的分工
-
-其实我想要的是研发生态中的一环。
-
-
-
-### 实施
-
-我们如何做的？
-
-1. 共识部分也就是主体流程结构部分。采用YAF。之所以用YAF就是足够专注，只干了我认为一个骨架该干的事。
-
-   > YAF干的很核心而且很明确，富框架干的越多意味着我们将来改动就越多，慢慢就脱离了原始框架。而且一旦涉及到业务，最好从一开始就自己来，而且所有富框架很难兼顾所有的场景。或者说根本没法融入到你的研发体系和线上基础架构里去。
-
-   框架基础功能包括
-
-   - 统一入口及引导程序 bootstrap
-   - 路由插件及请求周期管理
-   - 类自动加载及模块管理
-   - 配置
-   - 异常处理
-
-   ![流程图](http://www.laruence.com/manual/images/yaf_sequence.png)
-
-2. 公司级框架和类库共享
-   - 统一封装工具类库
-     - 缓存机制及各种实现
-     - CDN封装
-     - 加解密各种实现
-     - DB（mysql、redis）
-     - 分布式文件系统
-     - HTTP封装
-     - 日志记录
-     - 消息推送（短信，邮件等）
-     - 文档封装（word、pdf、excel）
-     - 队列机制及各种实现
-     - 安全组件封装
-     - 系统性能追踪
-     - 各种锁（排他锁、同步、异步锁）
-     - 多进程管理
-     - 各种参数验证管理
-     - 等
-   - 统一封装补充YAF的类库
-     - 单元测试
-     - 异常处理
-     - 请求体和响应体
-     - autoload支持composer
-     - 等
-   - 统一封装模块的父类，比如control层的父类，异常的父类等，实际上是框架和逻辑代码的衔接层
-   - 统一封装公共流程
-     - 频率限制器
-     - 验证码发送和验证（图形、短信、邮件）
-     - 基于cookie的auth认证和校验
-
-
-3. 独立代码模块共享，模块相对独立，从入口到配置都是独立的，只是在数据层和逻辑层与主干有交互。
-
-   - 微信模块（实现了微信公共号开发所需要所有功能，包括多客服）
-
-   - 后台模块（实现了后台模块的账户管理接ladp和google认证，权限管理，分组管理，安全控制）
-
-     > 后台模块为了开发效率，还开发各种组件，比如列表组件。几行固定代码搞定简单列表分页搜索排序导出功能。一键引入即时生效。对于开发效率提升是很明显的。举个例子，一般来说后台功能在项目开发的时候都是随说随做，集中半天一起做完。复杂需求除外。
-
-4. 基础架构
-
-   提供环境自动配置，彻底做到线上线下无感知
-
-   - 基于环境的服务端调用配置（mysql，redis）
-   - 基于环境的日志处理方法
-   - 基于环境的性能分析
-   - 基于环境的debug模式是否开启
-   - 基于环境的文件驱动模式
-
-   提供基于composer的外部引入，便于各种外部优秀类包引入
-
-   提供上线变更支持
-
-   提供与日志平台对接规范
-
-   提供与监控平台对接规范
-
-   提供与追踪系统对接规范
-
-5. 快速构建容器化开发模式
-
-   > 提供代码脚手架功能， 能够快速构建项目
-
-   - 提供开发实现快速启动项目，初始环境、数据、代码结构一键部署
-   - 提供开发实现快速介入项目，环境、数据、代码一键部署
-   - 提供测试一个干净的测试锁环境
-
-
-
-### 使用
+## 使用
 
 > 使用镜像 https://github.com/ifintech/rdbuild/tree/master/docker/php
 
 #### 使用docker快速构建一个新的项目
 
-> app名为demo 域名为demo.com
+> app名为demo 域名为demo.com 使用admin模块
 
 ```shell
-docker run -itd --name test -p 80:80 -v /home/phplib:/data1/htdocs/phplib -v /home/demo:/data1/htdocs/demo php
-docker exec -it test /usr/local/php/bin/php /data1/htdocs/phplib/Build/cg.php demo demo.com admin
+docker run -itd --name demo -p 80:80 -v /home/phplib:/data1/htdocs/phplib -v /home/demo:/data1/htdocs/demo php
+docker exec -it demo /usr/local/php/bin/php /data1/htdocs/phplib/Build/cg.php demo demo.com admin
 ```
 
 访问
@@ -132,7 +39,43 @@ curl -v http://127.0.0.1/ -H 'Host:demo.com'
 
 
 ```shell
-docker build -t demo .
-docker run -itd --name my_demo -p 80:80 -v /home/phplib:/data1/htdocs/phplib -v /home/demo:/data1/htdocs/demo demo
+docker run -itd --name test -p 80:80 -v /home/phplib:/data1/htdocs/phplib -v /home/demo:/data1/htdocs/demo php
+docker exec -it demo /data1/htdocs/demo/build/build.sh
 ```
+
+访问
+
+```shell
+curl -v http://127.0.0.1/ -H 'Host:demo.com'
+```
+
+
+
+##服务
+
+假如容器是demo，项目名为demo，则运行
+
+```shell
+docker exec -it demo /data1/htdocs/demo/bin/service.sh start|stop|reload|status
+
+介绍: 服务 启动|停止|重启|状态
+用法: sh /data1/htdocs/contract/shell/service.sh [start|stop|reload|status]
+```
+
+1. 会启动或者重启 FPM
+2. 会平滑启动或者重启长进程
+
+
+
+## 代码结构介绍
+
+
+
+
+
+
+
+## 其他
+
+
 
