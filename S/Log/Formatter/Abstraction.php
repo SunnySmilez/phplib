@@ -6,10 +6,10 @@ abstract class Abstraction {
     protected function getCommon() {
         if (\Core\Env::isCli()) {
             $uri    = \S\Request::server('argv', array())[1];
-            $params = array_slice(\S\Request::server('argv', array()), 2);
+            $params = array_slice(\S\Request::server('argv', array()), 2) ?: array();
         } else {
             $uri    = \Core\Env::getControllerName(true);
-            $params = $_REQUEST;
+            $params = $_REQUEST ?: array();
         }
 
         $common = array(
@@ -18,7 +18,7 @@ abstract class Abstraction {
             'server_ip' => \S\Util\Ip::getServerIp(),
             'client_ip' => \S\Util\Ip::getClientIp(),
             'uri'       => $uri,
-            'params'    => $params,
+            'params'    => json_encode($params),
         );
         $common = array_merge($common, \S\Log\Context::getCommonInfo());
 
