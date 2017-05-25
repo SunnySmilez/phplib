@@ -629,6 +629,9 @@ class Mysql {
         }
 
         if (!\Core\Env::isProductEnv() && \Core\Env::getModuleName() != "Admin") {
+            if(!is_dir('/data1/logs/' . APP_NAME)){
+                mkdir('/data1/logs/' . APP_NAME, 0777, true);
+            }
             file_put_contents('/data1/logs/' . APP_NAME . '/sql.log', date('Y-m-d H:i:s') . ' | ' . \S\Request::server('PATH_INFO') .
                 ' | ' . \S\Request::server('x-rid') . ' | ' . str_replace(array("\r", "\n"), ' ', $debug_sql) . "\n", FILE_APPEND);
         }
