@@ -68,10 +68,11 @@ class Api {
      * @return bool
      * @throws \Base\Exception\Controller
      */
-    public static function check($config_key) {
+    public static function check($config_key = "") {
         $key = Request::request("key", null);
         $time = Request::request("t", null);
         $m = Request::request("m", null);
+        $config_key = $config_key ?: $key;
 
         //如果参数没有，认为是有外部恶意扫描，隐藏错误码，返回404
         if (!$key || !$time || !$m) {

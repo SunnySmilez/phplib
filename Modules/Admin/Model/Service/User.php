@@ -3,8 +3,6 @@ namespace Modules\Admin\Model\Service;
 
 use Modules\Admin\Model\Data\User as DataUser;
 use Base\Exception\Service as Exception;
-use Modules\Admin\Model\Util\Qrcode as UtilQrCode;
-use Modules\Admin\Model\Util\Authenticator as UtilAuthenticator;
 
 class User {
 
