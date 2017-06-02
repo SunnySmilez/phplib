@@ -670,7 +670,7 @@ class Client
 
         if ($context instanceof Request) {
             $this->_logger->debug(array('Elastica Request', $context,
-                $this->_lastResponse ? $this->_lastResponse->getData() : null,
+//                $this->_lastResponse ? $this->_lastResponse->getData() : null,
                 $this->_lastResponse ? $this->_lastResponse->getStatus() : null,
             ));
 
