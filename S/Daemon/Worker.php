@@ -91,18 +91,6 @@ abstract class Worker {
     }
 
     /**
-     *  接受到SIGTERM信号时，结束子进程
-     *
-     * @access public
-     * @return void
-     */
-    public function stop() {
-        Utils::echoInfo(cli_get_process_title() . " receive stop sign");
-        $this->is_running = false;
-        exit();
-    }
-
-    /**
      * 注册子进程信息号
      *
      * @access protected
@@ -131,6 +119,18 @@ abstract class Worker {
             default:
                 break;
         }
+    }
+
+    /**
+     *  接受到SIGTERM信号时，结束子进程
+     *
+     * @access public
+     * @return void
+     */
+    protected function stop() {
+        Utils::echoInfo(cli_get_process_title() . " receive stop sign");
+        $this->is_running = false;
+        exit();
     }
 
     /**
