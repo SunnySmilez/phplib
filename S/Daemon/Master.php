@@ -75,7 +75,7 @@ class Master {
         foreach ($worker_configs as $class_name => $item) {
             $num = $this->config->getWorkerNum($class_name);
 
-            for ($i = 0; $i < $num; $i ++) {
+            for ($i = 0; $i < $num; $i++) {
                 $worker = new \Swoole\Process(function () use ($class_name) {
                     swoole_set_process_name("THREAD_PHP_" . strtoupper(APP_NAME) . "_" . $class_name);
 
@@ -85,7 +85,7 @@ class Master {
                     $worker_class->doTask();
                 });
 
-                $pid                     = $worker->start();
+                $pid                 = $worker->start();
                 $this->workers[$pid] = $worker;
             }
         }
@@ -158,8 +158,8 @@ class Master {
                 Utils::echoInfo("master waitpid $pid");
 
                 if ($this->is_running) {
-                    $worker = $this->workers[$pid];
-                    $new_pid = $worker->start();
+                    $worker                  = $this->workers[$pid];
+                    $new_pid                 = $worker->start();
                     $this->workers[$new_pid] = $worker;
                 }
 

@@ -154,7 +154,7 @@ abstract class Worker {
      * 检查循环次数
      */
     protected function checkRunNum() {
-        $classname     = "\\" . get_class($this);
+        $classname = "\\" . get_class($this);
         if ($this->run_num >= $this->config->getWorkerDealNum($classname)) {
             return false;
         }
@@ -166,7 +166,7 @@ abstract class Worker {
      * 检查生存时长
      */
     protected function checkRunTtl() {
-        $classname     = "\\" . get_class($this);
+        $classname = "\\" . get_class($this);
         if ((time() - $this->run_start_time) >= $this->config->getWorkerTtl($classname)) {
             return false;
         }
