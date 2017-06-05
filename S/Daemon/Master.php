@@ -27,60 +27,86 @@ namespace S\Daemon;
 class Master {
 
     const MASTER_PID_FILE_PATH = "/var/run/php_daemon_master_pid." . APP_NAME;
-    const MASTER_SLEEP = 10;
 
     /**
      * @var \S\Daemon\Config
      */
     protected $config;
     protected $is_running = false;
-    protected $worker_pids = array();
+    /**
+     * @var \Swoole\Process[]
+     */
+    protected $workers;
 
     public function __construct(\S\Daemon\Config $config) {
         if (!\Core\Env::isCli()) {
             throw new \S\Exception("当前环境非cli模式");
         }
         $this->config = $config;
-
-        \Swoole\Process::daemon(false, false);
-
-        $last_pid = file_get_contents(self::MASTER_PID_FILE_PATH);
-        if ($last_pid && \Swoole\Process::kill($last_pid, 0)) {
-            \Swoole\Process::kill($last_pid, SIGTERM);
-
-            //等待上一个进程退出
-            while (file_get_contents(self::MASTER_PID_FILE_PATH)) {
-                sleep(3);
-            }
-        }
-
-        //进程pid落地
-        file_put_contents(self::MASTER_PID_FILE_PATH, getmypid());
     }
 
     /**
      * 启动并且实时监控工作进程
      */
     public function main() {
-        Utils::echoInfo("master start");
-        $this->registerSigHandler();
+        \Swoole\Process::daemon(false, false);
 
+        $last_pid = file_get_contents(self::MASTER_PID_FILE_PATH);
+        if ($last_pid && \Swoole\Process::kill($last_pid, 0)) {
+            \Swoole\Process::kill($last_pid, SIGTERM);
+        }
+
+        file_put_contents(self::MASTER_PID_FILE_PATH, getmypid());
+
+        Utils::echoInfo("master start");
         $this->is_running = true;
 
-        while ($this->is_running) {
-            $this->manageWorkers();
+        $this->registerSigHandler();
 
-            pcntl_signal_dispatch();
-            sleep(self::MASTER_SLEEP);
+        $this->forkWorkers();
+    }
+
+    /**
+     * 管理进程
+     */
+    protected function forkWorkers() {
+        $worker_configs = $this->config->getWorkerConfig();
+
+        foreach ($worker_configs as $class_name => $item) {
+            $num = $this->config->getWorkerNum($class_name);
+
+            for ($i = 0; $i < $num; $i ++) {
+                $worker = new \Swoole\Process(function () use ($class_name) {
+                    swoole_set_process_name("THREAD_PHP_" . strtoupper(APP_NAME) . "_" . $class_name);
+
+                    \Core\Env::setCliClass($class_name);
+                    /** @var \S\Daemon\Worker $worker_class */
+                    $worker_class = new $class_name($this->config);
+                    $worker_class->doTask();
+                });
+
+                $pid                     = $worker->start();
+                $this->workers[$pid] = $worker;
+            }
         }
+    }
 
-        //等待子进程退出
-        while (count($this->worker_pids) > 0) {
-            pcntl_signal_dispatch();
-            sleep(3);
-        }
-
-        file_put_contents(self::MASTER_PID_FILE_PATH, "");
+    /**
+     * 信号注册
+     *
+     * @access protected
+     * @return void
+     */
+    protected function registerSigHandler() {
+        \Swoole\Process::signal(SIGTERM, function ($signo) {
+            $this->sigHandler($signo);
+        });
+        \Swoole\Process::signal(SIGINT, function ($signo) {
+            $this->sigHandler($signo);
+        });
+        \Swoole\Process::signal(SIGCHLD, function ($signo) {
+            $this->sigHandler($signo);
+        });
     }
 
     /**
@@ -91,7 +117,7 @@ class Master {
      * @access private
      * @return void
      */
-    public function sigHandler($sig) {
+    protected function sigHandler($sig) {
         Utils::echoInfo("master receive $sig");
 
         switch (intval($sig)) {
@@ -119,20 +145,6 @@ class Master {
     }
 
     /**
-     * 信号注册
-     *
-     * @access protected
-     * @return void
-     */
-    protected function registerSigHandler() {
-        pcntl_signal(SIGTERM, array($this, 'sigHandler'));
-        pcntl_signal(SIGHUP, array($this, 'sigHandler'));
-        pcntl_signal(SIGCHLD, array($this, 'sigHandler'));
-        pcntl_signal(SIGINT, array($this, 'sigHandler'));
-        pcntl_signal(SIGQUIT, array($this, 'sigHandler'));
-    }
-
-    /**
      * 处理退出的子进程
      *
      * @access protected
@@ -143,9 +155,15 @@ class Master {
             $ret = \Swoole\Process::wait(false);
             if ($ret) {
                 $pid = $ret['pid'];
-
                 Utils::echoInfo("master waitpid $pid");
-                unset($this->worker_pids[$pid]);
+
+                if ($this->is_running) {
+                    $worker = $this->workers[$pid];
+                    $new_pid = $worker->start();
+                    $this->workers[$new_pid] = $worker;
+                }
+
+                unset($this->workers[$pid]);
             } else {
                 break;
             }
@@ -164,63 +182,18 @@ class Master {
             Utils::echoInfo("master posix kill $pid");
             \Swoole\Process::kill($pid, SIGTERM);
         } else {
-            if (count($this->worker_pids)) {
-                foreach ($this->worker_pids as $pid => $class_name) {
+            $this->is_running = false;
+
+            if (count($this->workers)) {
+                foreach ($this->workers as $pid => $worker) {
                     Utils::echoInfo("master posix kill $pid");
                     \Swoole\Process::kill($pid, SIGTERM);
                 }
             }
 
             Utils::echoInfo("master stop");
-            $this->is_running = false;
+            exit();
         }
-    }
-
-    /**
-     * 管理进程
-     */
-    protected function manageWorkers() {
-        $worker_configs = $this->config->getWorkerConfig();
-        $worker_pids    = Utils::getWorkerProcessInfo($this->worker_pids);
-
-        //查看进程情况，按配置启动和减少进程
-        foreach ($worker_configs as $classname => $item) {
-            $num = count($worker_pids[$classname]) - $this->config->getWorkerNum($classname);
-
-            if ($num >= 0) {
-                for ($i = 0; $i < $num; $i++) {
-                    $this->cleanup($worker_pids[$classname][$i]);
-                }
-            } else {
-                $this->fork($classname);
-            }
-        }
-    }
-
-    /**
-     * fork子进程
-     *
-     * @param string $class_name 子进程类名
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    protected function fork($class_name) {
-        $worker = new \Swoole\Process(function () use ($class_name) {
-            swoole_set_process_name("THREAD_PHP_" . strtoupper(APP_NAME) . "_" . $class_name);
-
-            \Core\Env::setCliClass($class_name);
-            /** @var \S\Daemon\Worker $worker_class */
-            $worker_class = new $class_name($this->config);
-            $worker_class->doTask();
-        });
-
-        $pid                     = $worker->start();
-        $this->worker_pids[$pid] = array(
-            'classname' => $class_name,
-        );
-
-        return true;
     }
 
 }

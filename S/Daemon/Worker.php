@@ -99,6 +99,7 @@ abstract class Worker {
     public function stop() {
         Utils::echoInfo(cli_get_process_title() . " receive stop sign");
         $this->is_running = false;
+        exit();
     }
 
     /**
