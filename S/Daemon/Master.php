@@ -175,25 +175,20 @@ class Master {
      *
      * @param null $pid
      */
-    protected function cleanup($pid = null) {
-        Utils::echoInfo("clean up $pid");
+    protected function cleanup() {
+        Utils::echoInfo("clean up");
 
-        if ($pid) {
-            Utils::echoInfo("master posix kill $pid");
-            \Swoole\Process::kill($pid, SIGTERM);
-        } else {
-            $this->is_running = false;
+        $this->is_running = false;
 
-            if (count($this->workers)) {
-                foreach ($this->workers as $pid => $worker) {
-                    Utils::echoInfo("master posix kill $pid");
-                    \Swoole\Process::kill($pid, SIGTERM);
-                }
+        if (count($this->workers)) {
+            foreach ($this->workers as $pid => $worker) {
+                Utils::echoInfo("master posix kill $pid");
+                \Swoole\Process::kill($pid, SIGTERM);
             }
-
-            Utils::echoInfo("master stop");
-            exit();
         }
+
+        Utils::echoInfo("master stop");
+        exit();
     }
 
 }
