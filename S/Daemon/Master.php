@@ -171,9 +171,9 @@ class Master {
     }
 
     /**
-     * 父进程接受到退出信号时，给子进程发送SIGTERM信号
+     * 进程退出前的清理任务
      *
-     * @param null $pid
+     * 父进程接受到退出信号时，给子进程发送SIGTERM信号
      */
     protected function cleanup() {
         Utils::echoInfo("clean up");
