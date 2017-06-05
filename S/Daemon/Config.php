@@ -26,8 +26,6 @@ namespace S\Daemon;
  */
 class Config {
 
-    const CONFIG_FILE_PATH = "/tmp/php_daemon_config." . APP_NAME . ".conf"; //子进程配置文件默认存放路径
-
     const DEFAULT_WORKER_TTL = 8640;  //子进程1小时，回收
     const DEFAULT_WORKER_DEAL_NUM = 100000;  //子进程循环处理100000个，回收
 
@@ -56,7 +54,6 @@ class Config {
             'ttl'      => $ttl,
             'deal_num' => $deal_num,
         );
-        $this->_saveConfigToFile();
 
         return true;
     }
@@ -67,8 +64,6 @@ class Config {
      * @return array
      */
     public function getWorkerConfig() {
-        $this->_getConfigByFile();
-
         return $this->_config;
     }
 
@@ -80,8 +75,6 @@ class Config {
      * @return int
      */
     public function getWorkerTtl($classname) {
-        $this->_getConfigByFile();
-
         return $this->_config[$classname]['ttl'];
     }
 
@@ -93,8 +86,6 @@ class Config {
      * @return int
      */
     public function getWorkerNum($classname) {
-        $this->_getConfigByFile();
-
         return $this->_config[$classname]['work_num'];
     }
 
@@ -106,38 +97,7 @@ class Config {
      * @return int
      */
     public function getWorkerDealNum($classname) {
-        $this->_getConfigByFile();
-
         return $this->_config[$classname]['deal_num'];
-    }
-
-    /**
-     * 从配置文件中加载进程配置
-     *
-     * @return bool
-     */
-    private function _getConfigByFile() {
-        $config = file_get_contents(self::CONFIG_FILE_PATH);
-        if ($config) {
-            $this->_config = json_decode($config, true);
-        } else {
-            $this->_config = array();
-        }
-
-        return true;
-    }
-
-    /**
-     * 更新进程配置文件
-     *
-     * @return bool
-     */
-    private function _saveConfigToFile() {
-        if (md5(json_encode($this->_config)) !== md5_file(self::CONFIG_FILE_PATH)) {
-            file_put_contents(self::CONFIG_FILE_PATH, json_encode($this->_config));
-        }
-
-        return true;
     }
 
 }
