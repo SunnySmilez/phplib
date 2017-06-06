@@ -5,9 +5,9 @@ namespace S\Daemon;
 /**
  * 子进程基类
  *
- * 具体的工作进程类需要继承此类并实现process方法
- * 工作进程的业务流程需要实现在process()方法里
- * process()方法每隔一定时间会执行一次   由$whileSleep控制 默认1秒
+ * 子进程类需要继承此类并实现process方法
+ * 子进程的业务流程需要实现在process()方法里
+ * process()方法每隔一定时间会执行一次, 由$whileSleep控制 默认1秒
  *
  * 子进程受主进程控制
  * 子进程预设了进程的生存时间和执行次数上限, 在超过生存时间或执行次数超过上限时，进程会被回收, 然后主进程会启动一个新的进程
@@ -25,9 +25,9 @@ abstract class Worker {
     const DEFAULT_SLEEP_INTERVAL = 10000;  //默认未处理任务时进程睡眠间隔时间: 10毫秒
 
     protected $is_running = false;
-    protected $included_files = null;
+    protected $included_files_md5 = null;
     protected $run_num = 0;  //已处理任务数量
-    protected $run_start_time = 0;  //进程已运行时间
+    protected $run_start_time = 0;  //进程开始运行时间
     protected $sleep_interval = 1;  //未处理任务时进程睡眠时间
 
     protected $config;
@@ -128,8 +128,8 @@ abstract class Worker {
      * @return void
      */
     protected function stop() {
-        Utils::echoInfo(cli_get_process_title() . " receive stop sign");
         $this->is_running = false;
+        Utils::echoInfo(cli_get_process_title() . " receive stop sign");
         exit();
     }
 
@@ -137,15 +137,17 @@ abstract class Worker {
      * 检查文件变更
      */
     protected function checkIncludedFiles() {
-        if ($this->included_files) {
-            if (array_diff($this->included_files, Utils::getIncludedFilesMd5())) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            $this->included_files = Utils::getIncludedFilesMd5();
+        $latest_included_files_md5 = Utils::getIncludedFilesMd5();
 
+        if (!$this->included_files_md5) {
+            $this->included_files_md5 = $latest_included_files_md5;
+
+            return true;
+        }
+
+        if (array_diff($this->included_files_md5, $latest_included_files_md5)) {
+            return false;
+        } else {
             return true;
         }
     }

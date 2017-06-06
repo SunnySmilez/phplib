@@ -49,18 +49,16 @@ class Master {
     public function main() {
         \Swoole\Process::daemon(false, false);
 
+        $this->is_running = true;
+        Utils::echoInfo("master start");
+
         $last_pid = file_get_contents(self::MASTER_PID_FILE_PATH);
         if ($last_pid && \Swoole\Process::kill($last_pid, 0)) {
             \Swoole\Process::kill($last_pid, SIGTERM);
         }
-
         file_put_contents(self::MASTER_PID_FILE_PATH, getmypid());
 
-        Utils::echoInfo("master start");
-        $this->is_running = true;
-
         $this->registerSigHandler();
-
         $this->forkWorkers();
     }
 

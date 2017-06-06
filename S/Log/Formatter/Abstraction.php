@@ -5,7 +5,7 @@ abstract class Abstraction {
 
     protected function getCommon() {
         if (\Core\Env::isCli()) {
-            $uri    = \S\Request::server('argv', array())[1];
+            $uri    = str_replace('\\', '_', trim(\Core\Env::getCliClass(), '\\'));
             $params = array_slice(\S\Request::server('argv', array()), 2) ?: array();
         } else {
             $uri    = \Core\Env::getControllerName(true);
