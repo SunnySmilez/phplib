@@ -12,8 +12,6 @@ namespace S\Daemon;
  *     子进程生命周期
  *     子进程处理任务数量上限
  *
- * 配置一旦生效将保存入配置文件中，该文件默认存放路径为：/tmp/daemon_config_file.conf
- *
  * 此类用于进行配置子进程，使用示例：
  *
  * $config = new \S\Daemon\Config();
@@ -21,7 +19,7 @@ namespace S\Daemon;
  * $config->setWorkerConfig("\\Jobs\\Daemon\\ClassI", 1);
  * $config->setWorkerConfig("\\Jobs\\Daemon\\ClassII", 2);
  *
- * $master = new \S\Daemon\Master();
+ * $master = new \S\Daemon\Master($config);
  * $master->main();
  */
 class Config {

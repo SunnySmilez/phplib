@@ -15,8 +15,8 @@ namespace S\Daemon;
  * $config->setWorkerConfig("\\Jobs\\Daemon\\ClassI", 1);
  * $config->setWorkerConfig("\\Jobs\\Daemon\\ClassII", 2);
  *
- * $master = new \S\Daemon\Master();
- * $master->main($config);
+ * $master = new \S\Daemon\Master($config);
+ * $master->main();
  *
  * 一个守护进程里只有一个主进程
  * 主进程负责启动、管理工作进程
@@ -75,7 +75,7 @@ class Master {
 
             for ($i = 0; $i < $num; $i++) {
                 $worker = new \Swoole\Process(function () use ($class_name) {
-                    swoole_set_process_name("THREAD_PHP_" . strtoupper(APP_NAME) . "_" . $class_name);
+                    swoole_set_process_name("PHP_" . strtoupper(APP_NAME) . "_DAEMON_WORKER_" . $class_name);
 
                     \Core\Env::setCliClass($class_name);
                     /** @var \S\Daemon\Worker $worker_class */
