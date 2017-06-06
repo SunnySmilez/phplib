@@ -48,7 +48,7 @@ class Config {
             $deal_num = self::DEFAULT_WORKER_DEAL_NUM;
         }
         $this->_config[$classname] = array(
-            'work_num' => $work_num,
+            'worker_num' => $work_num,
             'ttl'      => $ttl,
             'deal_num' => $deal_num,
         );
@@ -63,39 +63,6 @@ class Config {
      */
     public function getWorkerConfig() {
         return $this->_config;
-    }
-
-    /**
-     * 获取子进程生命周期
-     *
-     * @param string $classname 子进程类名
-     *
-     * @return int
-     */
-    public function getWorkerTtl($classname) {
-        return $this->_config[$classname]['ttl'];
-    }
-
-    /**
-     * 获取子进程数量上限
-     *
-     * @param string $classname 子进程类名
-     *
-     * @return int
-     */
-    public function getWorkerNum($classname) {
-        return $this->_config[$classname]['work_num'];
-    }
-
-    /**
-     * 获取子进程处理任务数量上限
-     *
-     * @param string $classname 子进程类名
-     *
-     * @return int
-     */
-    public function getWorkerDealNum($classname) {
-        return $this->_config[$classname]['deal_num'];
     }
 
 }

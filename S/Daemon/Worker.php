@@ -30,15 +30,14 @@ abstract class Worker {
     protected $run_start_time = 0;  //进程已运行时间
     protected $sleep_interval = 1;  //未处理任务时进程睡眠时间
 
-    /**
-     * @var \S\Daemon\Config
-     */
     protected $config;
 
     /**
      * Worker constructor.
+     *
+     * @param array $config
      */
-    public function __construct(\S\Daemon\Config $config) {
+    public function __construct(array $config) {
         $this->config = $config;
     }
 
@@ -60,32 +59,34 @@ abstract class Worker {
 
         $this->registerSigHandler();
 
-        Utils::echoInfo(cli_get_process_title() . " start");
+        $process_name = cli_get_process_title();
+        Utils::echoInfo($process_name . " start");
+
         while ($this->is_running) {
             try {
                 $this->process();
             } catch (\Throwable $e) {
-                Utils::echoInfo(cli_get_process_title() . " throw " . $e->getMessage());
+                Utils::echoInfo($process_name . " throw " . $e->getMessage());
                 $this->is_running = false;
             }
 
             $this->run_num++;
 
             if (!$this->checkIncludedFiles()) {
-                Utils::echoInfo(cli_get_process_title() . " included file md5 change");
+                Utils::echoInfo($process_name . " included file md5 change");
                 $this->is_running = false;
             }
             if (!$this->checkRunNum()) {
-                Utils::echoInfo(cli_get_process_title() . " run num over");
+                Utils::echoInfo($process_name . " run num over");
                 $this->is_running = false;
             }
             if (!$this->checkRunTtl()) {
-                Utils::echoInfo(cli_get_process_title() . " run ttl over");
+                Utils::echoInfo($process_name . " run ttl over");
                 $this->is_running = false;
             }
 
-            pcntl_signal_dispatch();
             usleep($this->sleep_interval);
+            pcntl_signal_dispatch();
         }
     }
 
@@ -136,16 +137,16 @@ abstract class Worker {
      * 检查文件变更
      */
     protected function checkIncludedFiles() {
-        if (!$this->included_files) {
+        if ($this->included_files) {
+            if (array_diff($this->included_files, Utils::getIncludedFilesMd5())) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
             $this->included_files = Utils::getIncludedFilesMd5();
 
             return true;
-        } else {
-            if (!array_diff($this->included_files, Utils::getIncludedFilesMd5())) {
-                return true;
-            } else {
-                return false;
-            }
         }
     }
 
@@ -153,8 +154,7 @@ abstract class Worker {
      * 检查循环次数
      */
     protected function checkRunNum() {
-        $classname = "\\" . get_class($this);
-        if ($this->run_num >= $this->config->getWorkerDealNum($classname)) {
+        if ($this->run_num >= $this->config["deal_num"]) {
             return false;
         }
 
@@ -165,8 +165,7 @@ abstract class Worker {
      * 检查生存时长
      */
     protected function checkRunTtl() {
-        $classname = "\\" . get_class($this);
-        if ((time() - $this->run_start_time) >= $this->config->getWorkerTtl($classname)) {
+        if ((time() - $this->run_start_time) >= $this->config["ttl"]) {
             return false;
         }
 

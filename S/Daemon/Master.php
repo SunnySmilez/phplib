@@ -70,16 +70,14 @@ class Master {
     protected function forkWorkers() {
         $worker_configs = $this->config->getWorkerConfig();
 
-        foreach ($worker_configs as $class_name => $item) {
-            $num = $this->config->getWorkerNum($class_name);
-
-            for ($i = 0; $i < $num; $i++) {
-                $worker = new \Swoole\Process(function () use ($class_name) {
+        foreach ($worker_configs as $class_name => $config) {
+            for ($i = 0; $i < $config["worker_num"]; $i++) {
+                $worker = new \Swoole\Process(function () use ($class_name, $config) {
                     swoole_set_process_name("PHP_" . strtoupper(APP_NAME) . "_DAEMON_WORKER_" . $class_name);
 
                     \Core\Env::setCliClass($class_name);
                     /** @var \S\Daemon\Worker $worker_class */
-                    $worker_class = new $class_name($this->config);
+                    $worker_class = new $class_name($config);
                     $worker_class->doTask();
                 });
 
