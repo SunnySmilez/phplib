@@ -520,27 +520,38 @@ class Mysql {
             $this->sqlDebug($sql, $params);
         }
 
-        $mode = $this->getDbMode($sql);
-        /* @var $stmt \PDOStatement */
-        try {
-            $stmt = $this->getPdo($mode)->prepare($sql);
-            Timelog::instance()->resetTime();
-            if ($params) {
-                $return = $stmt->execute($params);
-            } else {
-                $return = $stmt->execute();
+        for ($i = 0; $i < 2; $i++) {
+            $mode = $this->getDbMode($sql);
+            /* @var $stmt \PDOStatement */
+            try {
+                $stmt = $this->getPdo($mode)->prepare($sql);
+                Timelog::instance()->resetTime();
+                if ($params) {
+                    $result = $stmt->execute($params);
+                } else {
+                    $result = $stmt->execute();
+                }
+            } catch (\PDOException $e) {
+                //如果在[CLI]模式下链接断开, 清除会话并重新连接
+                if (\Core\Env::isCli() && stripos('MySQL server has gone away', $e->getMessage()) !== false) {
+                    $this->close();
+
+                    if ($i < 1) {
+                        $message['exception'] = $e;
+                        \S\Log\Logger::getInstance()->warning($message);
+
+                        continue;
+                    }
+                }
+                throw new \S\Exception($e->getMessage(), '3001' . $e->getCode());
             }
-        } catch (\PDOException $e) {
-            //如果在[CLI]模式下链接断开,清除会话
-            if (\Core\Env::isCli() && stripos('MySQL server has gone away', $e->getMessage()) !== false) {
-                $this->close();
-            }
-            throw new \S\Exception($e->getMessage(), '3001' . $e->getCode());
+
+            $this->_setStrace($mode, __FUNCTION__, $sql);
+
+            return $result ? ($rowcount ? $stmt->rowCount() : $stmt) : false;
         }
 
-        $this->_setStrace($mode, __FUNCTION__, $sql);
-
-        return $return ? ($rowcount ? $stmt->rowCount() : $stmt) : false;
+        return false;
     }
 
     /**
