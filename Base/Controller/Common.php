@@ -22,11 +22,11 @@ abstract class Common extends \Yaf\Controller_Abstract {
      */
     protected $response = array();
 
-	protected $responseFormatter = null;
+	protected $response_formatter = null;
 
     public function init(){
-        if($this->responseFormatter !== null){
-            Response::setFormatter($this->responseFormatter);
+        if($this->response_formatter !== null){
+            Response::setFormatter($this->response_formatter);
         }
     }
 
@@ -67,39 +67,17 @@ abstract class Common extends \Yaf\Controller_Abstract {
             ob_start();
         }
         if (Response::getFormatter() === Response::FORMAT_PLAIN) {
-            Response::outPlain($this->response);
+            Response::displayPlain($this->response);
         } elseif (Response::getFormatter() === Response::FORMAT_JSON) {
-            $this->displayJson($this->response);
+            Response::displayJson($this->response);
         } else {
-            $this->displayView($this->response);
+            Response::displayView($this->getView(), $this->response);
         }
 
         if (\Core\Env::isPhpUnit()) {//测试用例处理
             \Yaf\Registry::set('test_response', json_encode($this->response));
             ob_end_clean();
         }
-
-        //记录日志
-        \S\Log\Logger::getInstance()->info();
-    }
-
-    /**
-     * json输出模式
-     * @param $data
-     */
-    public function displayJson($data){
-        $common = \S\Config::confError('common.succ');
-        Response::outJson($common['retcode'], $common['msg'], $data);
-    }
-
-    /**
-     * 页面渲染输出
-     * @param $tpl_vars
-     * @return bool
-     */
-    public function displayView($tpl_vars){
-        $ext = \Yaf\Application::app()->getConfig()->get('yaf.view.ext');
-        $tpl_path = APP_VIEW ."/". str_replace('_', DIRECTORY_SEPARATOR, $this->getRequest()->controller).'.'.$ext;
-        $this->_view->display($tpl_path, $tpl_vars);
+        return true;
     }
 }

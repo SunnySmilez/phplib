@@ -14,8 +14,9 @@ class Bootstrap extends \Yaf\Bootstrap_Abstract
     public function _initBaseSet(\Yaf\Dispatcher $dispatcher) {
         //加载APP相关设置
         require APP_CONF . "/defined.php";
-        //视图不自动渲染
-        $dispatcher->autoRender(false);
+        //注册异常处理函数
+        set_exception_handler(array("\\Core\\Error","handle"));
+        return true;
     }
 
     /**
@@ -27,18 +28,45 @@ class Bootstrap extends \Yaf\Bootstrap_Abstract
         \Yaf\Loader::getInstance()->registerLocalNamespace(\Core\Env::$namespace);
         //自身 autoloader
         \Core\Loader::init();
+        return true;
     }
 
     /**
      * 注册插件
+     *
      * @param \Yaf\Dispatcher $dispatcher
+     * @return bool
      */
     public function _initBasePlugin(\Yaf\Dispatcher $dispatcher){
         $dispatcher->registerPlugin(new Plugin\Base());
+        return true;
     }
 
     /**
-     * 开启日志模式
+     * 确定输出方式
+     * @param \Yaf\Dispatcher $dispatcher
+     * @return bool
+     */
+    public function _initBaseResponse(\Yaf\Dispatcher $dispatcher){
+        //关闭自动渲染
+        $dispatcher->autoRender(false);
+
+        //cli模式下response是Yaf_Response_Cli
+        if ($dispatcher->getRequest()->getMethod() == "CLI") {
+            return true;
+        }
+
+        //初始化请求类型
+        if ($dispatcher->getRequest()->getEnv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest') {
+            \S\Response::setFormatter(\S\Response::FORMAT_JSON);
+        } else {
+            \S\Response::setFormatter(\S\Response::FORMAT_HTML);
+        }
+        return true;
+    }
+
+    /**
+     * 注册日志模式
      */
     public function _initBaseLog(){
         if(\Core\Env::isProductEnv()){
@@ -46,6 +74,7 @@ class Bootstrap extends \Yaf\Bootstrap_Abstract
         }else{
             \S\Log\Logger::getInstance()->pushHandler(new \S\Log\Handler\File());
         }
+        return true;
     }
 
     /**
@@ -57,6 +86,7 @@ class Bootstrap extends \Yaf\Bootstrap_Abstract
             ini_set('xdebug.var_display_max_depth', 10);
             error_reporting(E_ALL ^ E_NOTICE);
         }
+        return true;
     }
 
 }

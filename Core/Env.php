@@ -1,8 +1,6 @@
 <?php
 namespace Core;
 
-use S\Response;
-
 define('APP_ENVIRON_DEV', 'dev');
 define('APP_ENVIRON_TEST', 'test');
 define('APP_ENVIRON_REALTEST', 'realtest');
@@ -18,44 +16,8 @@ define('APP_ENVIRON_PRODUCT', 'product');
  * 2.开发测试生成环境判断问题
  */
 class Env {
-
-    const IDC_BJ = 'bj';
-    const IDC_HZ = 'hz';
-    const IDC_DEFAULT = self::IDC_HZ;
-
     public static $namespace = array('Service', 'Data', 'Dao', 'Jobs');
     public static $charset = "utf-8";
-
-    public static $idcs = array(
-        self::IDC_BJ,
-        self::IDC_HZ,
-        self::IDC_DEFAULT,
-    );
-
-    private static $controller = array();
-    private static $module = array();
-    private static $action = array();
-
-    private static $cli_class = '';
-
-    /**
-     * 初始化环境
-     *
-     * @param \Yaf\Request_Abstract  $request
-     * @param \Yaf\Response_Abstract $response
-     */
-    public static function init(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response) {
-        array_push(self::$module, $request->getModuleName() ?: '');
-        array_push(self::$controller, $request->getControllerName() ?: '');
-        array_push(self::$action, $request->getActionName() ?: '');
-
-        //初始化请求类型
-        if (\S\Request::isAjax()) {
-            Response::setFormatter(Response::FORMAT_JSON);
-        } else {
-            Response::setFormatter(Response::FORMAT_HTML);
-        }
-    }
 
     /**
      * 获取当前环境名称
@@ -68,57 +30,8 @@ class Env {
         return $environ;
     }
 
-    public static function getIdc() {
-        $area = ini_get("yaf.area");
-        if (in_array($area, self::$idcs)) {
-            return $area;
-        } else {
-            return self::IDC_DEFAULT;
-        }
-    }
-
-    /**
-     * 获取控制器名称
-     *
-     * @param bool $is_first
-     *
-     * @return string
-     */
-    public static function getControllerName($is_first = false) {
-        if ($is_first) {
-            return self::$controller[0];
-        } else {
-            return \Yaf\Application::app()->getDispatcher()->getRequest()->getControllerName();
-        }
-    }
-
-    /**
-     * 获取模块名称
-     *
-     * @param bool $is_first
-     *
-     * @return string
-     */
-    public static function getModuleName($is_first = false) {
-        if ($is_first) {
-            return self::$module[0];
-        } else {
-            return \Yaf\Application::app()->getDispatcher()->getRequest()->getModuleName();
-        }
-    }
-
     public static function getCharset() {
         return self::$charset;
-    }
-
-    public static function getCliClass() {
-        return self::$cli_class;
-    }
-
-    public static function setCliClass($class) {
-        self::$cli_class = $class;
-
-        return true;
     }
 
     /**

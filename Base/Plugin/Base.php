@@ -15,15 +15,16 @@ namespace Base\Plugin;
  * @desc 流程插件
  */
 class Base extends \Yaf\Plugin_Abstract {
-    public function preDispatch(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response){
-        //干掉不合法的请求(请求可以包含/字母数字)
-        $request_uri = $request->getRequestUri();
-        if(!preg_match('/^[A-Za-z0-9\/]+$/', $request_uri) && $request_uri){
-            \S\Response::header404($request_uri);
-            die();
-        }
 
-        //分发之前触发 此时还没有触发逻辑
-        \Core\Env::init($request, $response);
+    /**
+     * 记录运行日志
+     * @param \Yaf\Request_Abstract $request
+     * @param \Yaf\Response_Abstract $response
+     * @return bool
+     */
+    public function dispatchLoopShutdown(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response){
+        //记录日志
+        \S\Log\Logger::getInstance()->info();
+        return true;
     }
 }

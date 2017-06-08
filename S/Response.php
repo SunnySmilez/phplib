@@ -6,6 +6,9 @@ class Response {
     const FORMAT_PLAIN  = 'plain';
     const FORMAT_HTML   = 'html';
 
+    const RET_CODE = '2000000';
+    const RET_MSG = 'SUCC';
+
 	static protected $use_jsonp_var = false;
 	static protected $meta = array();
     static protected $formatter = null;
@@ -18,127 +21,52 @@ class Response {
         return self::$formatter?:self::FORMAT_HTML;
     }
 
-	/**
-	 * 提供json格式中元数据的定制
-	 *
-	 * Tutorial:
-	 * <code>
-	 * //默认:
-	 * 	Comm_Response::out_json(0, 'okay', array('That is right'));
-	 * 	//{'code' : 0, 'msg' : 'okay', 'data' : ['That is right']}
-	 * //定制参数：
-	 * 	Comm_Response::set_meta_data('key', 'foo');
-	 * 	Comm_Response::out_json(0, 'okay', array('That is right'));
-	 * 	//{'key': 'foo', 'code' : 0, 'msg' : 'okay', 'data' : ['That is right']}
-	 * </code>
-	 * @param string $name
-	 * @param mixed $value
-	 */
-	public static function setMetaData($name, $value){
-		self::$meta[$name] = $value;
-	}
+    /**
+     * json输出模式
+     * @param array $data
+     * @param string $retcode
+     * @param string $msg
+     * @return bool
+     */
+    public static function displayJson(array $data, $retcode='', $msg=''){
+        @header('Content-type: application/json');
+        echo json_encode(
+            array(
+                'retcode' => $retcode?:self::RET_CODE,
+                'msg'     => $msg?:self::RET_MSG,
+                'data'    => $data
+            )
+        );
+        return true;
+    }
 
-	/**
-	 * 获取json结构定制的元数据
-	 *
-	 * @param string|null $name 数据名。可选，若空，则取null作为默认值。
-	 * @return mixed 当$name为空时，返回全部meta数据，否则只返回指定的数据。若指定数据未设置过，则返回一个null
-	 */
-	public static function getMetaData($name = null){
-		return $name ? (isset(self::$meta[$name]) ? self::$meta[$name] : null) : self::$meta;
-	}
+    /**
+     * 直接输出内容
+     *
+     * @param $data
+     * @return bool
+     */
+    public static function displayPlain($data){
+        @header('Content-type: text/plain');
+        echo $data;
+        return true;
+    }
 
-	/**
-	 * 设置在输出jsonp的时候，将$callback参数作为变量处理。
-	 *
-	 */
-	public static function useJsonpAsVar(){
-		self::$use_jsonp_var = true;
-	}
+    /**
+     * 渲染视图
+     *
+     * @param \Yaf\View_Interface $view
+     * @param $data
+     * @return bool
+     */
+    public static function displayView(\Yaf\View_Interface $view, $data){
+        $request = \Yaf\Application::app()->getDispatcher()->getRequest();
+        $tpl_path = APP_VIEW ."/". str_replace('_', '/', $request->controller).'.phtml';
+        $view->display($tpl_path, $data);
+        return true;
+    }
 
-	/**
-	 * 设置在输出jsonp的时候，将$callback参数作为变量处理
-	 *
-	 */
-	public static function useJsonpAsCallback(){
-		self::$use_jsonp_var = false;
-	}
-
-	/**
-	 * 按json格式输出响应
-	 *
-	 * @param string|int	$code			js的错误代码/行为代码
-	 * @param string		$message		可选。行为所需文案或者错误详细描述。默认为空。
-	 * @param mixed			$data			可选。附加数据。
-	 * @param bool			$return_string	可选。是否返回一个字符串。默认情况将直接输出。
-	 * @return string|void	取决与$return_string的设置。如果return_string为真，则返回渲染结果的字符串，否则直接输出，返回空
-	 */
-	public static function outJson($code, $message = '', $data = array(), $return_string = false) {
-		$json_string = json_encode(array_merge(self::$meta, array(
-			'retcode' => $code,
-			'msg' => strval($message),
-		), $data));
-		if ($return_string) {
-			return $json_string;
-		} else {
-			@header('Content-type: application/json');
-			echo $json_string;
-			return true;
-		}
-	}
-
-	/**
-	 * 按jsonp格式输出响应
-	 *
-	 * @param string		$callback		Javascript所需的回调函数名字。如果不合法，则会抛出一个异常。
-	 * @param string		$code			Javascript所需的行为代码。
-	 * @param string		$message		可选。行为所需文案或者错误详细描述。默认为空。
-	 * @param mixed			$data			可选。附加数据。
-	 * @param bool			$return_string	可选。是否返回一个字符串。默认情况将直接输出。
-	 * @return string|void	取决于$return_string的设置。如果return_string为真，则返回渲染结果的字符串，否则直接输出，返回空
-	 *
-	 * @throws Exception
-	 */
-	public static function outJsonp($callback, $code, $message = '', $data = array(), $return_string = false){
-		if (preg_match('/^[\w\$\.]+$/iD', $callback)) {
-			$jsonp = (!self::$use_jsonp_var ? "window.{$callback} && {$callback}(" : "var {$callback}=")
-				. self::outJson($code, $message, $data, true) . (!self::$use_jsonp_var ? ")" : "") . ';';
-			if ($return_string) {
-				return $jsonp;
-			} else {
-				@header('Content-type: application/json');
-				echo $jsonp;
-				return true;
-			}
-		}
-		throw new Exception('callback name invalid');
-	}
-
-	/**
-	 * 输出需要用iframe嵌套的jsonp
-	 *
-	 * @param string		$callback		Javascript所需的回调函数名字。如果不合法，则会抛出一个异常。
-	 * @param string		$code			Javascript所需的行为代码。
-	 * @param string		$message		可选。行为所需文案或者错误详细描述。默认为空。
-	 * @param mixed			$data			可选。附加数据。
-	 * @see out_jsonp
-	 */
-	public static function outJsonpIframe($callback, $code, $message = '', $data = array()){
-		echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><script type="text/javascript">document.domain="sina.com.cn";'
-			. self::outJsonp($callback, $code, $message, $data, true)
-			. '</script>';
-	}
-
-	/**
-	 * 直接输出内容
-	 *
-	 * @param string $text
-	 */
-	public static function outPlain($text){
-		echo $text;
-	}
-
-	public function cacheHeader($expires) {
+	public static function cacheHeader($expires) {
 		if ($expires === false) {
 			return self::header(array(
 				'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
