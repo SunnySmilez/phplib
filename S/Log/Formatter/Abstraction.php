@@ -20,7 +20,7 @@ abstract class Abstraction {
             'client_ip' => \S\Util\Ip::getClientIp(),
             'uri'       => $uri,
             'params'    => json_encode($params),
-            'level'     => static::class,
+            'level'     => strtolower(end(explode("\\", get_class($this)))),
         );
         $common = array_merge($common, \S\Log\Context::getCommonInfo());
 
