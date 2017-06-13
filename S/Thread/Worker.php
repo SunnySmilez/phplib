@@ -40,16 +40,12 @@ abstract class Worker {
         $this->isRunning    = true;
         $this->registerSigHandler();
         Utils::echoInfo(cli_get_process_title() . " start");
+
         //循环处理，直到接受到停止信号
-        while (true) {
+        while ($this->isRunning) {
             try {
                 $this->process();
-            } catch (\S\Exception $e) {
-                Utils::echoInfo(cli_get_process_title() . " throw " . $e->getMessage());
-                $this->isRunning = false;
-            } catch (\Base\Exception\Abstraction $e) {
-                Utils::echoInfo(cli_get_process_title() . " throw " . $e->getMessage());
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 //上层异常 退出进程
                 Utils::echoInfo(cli_get_process_title() . " throw " . $e->getMessage());
                 $this->isRunning = false;
@@ -68,15 +64,12 @@ abstract class Worker {
             }
             $this->runNum++;
 
-            pcntl_signal_dispatch();
-            if (!$this->isRunning) break;
             if ($this->whileSleep == 0) {
                 usleep(10000);//10毫秒
             } else {
                 sleep($this->whileSleep);
             }
             pcntl_signal_dispatch();
-            if (!$this->isRunning) break;
         }
         exit;
     }
@@ -88,7 +81,7 @@ abstract class Worker {
      * @return void
      */
     public function stop() {
-        Utils::echoInfo(cli_get_process_title() . " revice stop sign");
+        Utils::echoInfo(cli_get_process_title() . " receive stop sign");
         $this->isRunning = false;
     }
 
