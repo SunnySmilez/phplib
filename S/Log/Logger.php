@@ -105,13 +105,10 @@ class Logger {
      * 统计日志
      * @param array  $message
      * @param string $index       索引名称
-     * @param string $date_suffix 日期后缀(按年/月/日来分割) Ymd格式
      * @return bool
      */
-    public function stat(array $message, $index, $date_suffix = "Ym") {
-        $date  = date($date_suffix);
-        $index = APP_NAME . "-" . $index . ($date ? "-{$date}" : "");
-
+    public function stat(array $message, $index) {
+        $index = APP_NAME . "-" . $index;
         return $this->addRecord(LogLevel::STAT, $message, $index);
     }
 }
