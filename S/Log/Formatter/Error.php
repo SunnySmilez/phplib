@@ -28,6 +28,6 @@ class Error extends Abstraction{
         }
 
         $message = array_merge($this->getCommon(), $message);
-        return json_encode($message, JSON_UNESCAPED_UNICODE);
+        return $message;
     }
 }

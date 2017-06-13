@@ -4,6 +4,7 @@ namespace S\Log\Handler;
 class File extends Abstraction {
 
     public function write($level, $message, $to_path) {
+        $message = json_encode($message, JSON_UNESCAPED_UNICODE);
         $log_path = $this->getPath($level, $to_path);
         $file_path = '/data1/logs/' . APP_NAME . '/' . $log_path;
         $dir_path  = dirname($file_path);
