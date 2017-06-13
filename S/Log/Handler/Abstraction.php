@@ -3,11 +3,15 @@ namespace S\Log\Handler;
 
 abstract class Abstraction {
 
-    public function handle($level, $message, $to_path){
-        $path = $this->getPath($level, $to_path);
-        $this->write($path, $message);
-        return true;
-    }
+    /**
+     * 写日志具体方法
+     *
+     * @param $level
+     * @param $message
+     * @param $to_path
+     * @return mixed
+     */
+    abstract public function write($level, $message, $to_path);
 
     /**
      * 获取存储的关键key
@@ -39,14 +43,5 @@ abstract class Abstraction {
 
         return $key;
     }
-
-    /**
-     * 写日志具体方法
-     *
-     * @param $key
-     * @param $message
-     * @return mixed
-     */
-    abstract protected function write($key, $message);
 
 }

@@ -79,7 +79,7 @@ class Logger {
         $obj_format = new $format;
         $message    = $obj_format->format($message);
         foreach ($this->_handlers as $handler) {
-            $handler->handle($levelName, $message, $to_path);
+            $handler->write($levelName, $message, $to_path);
         }
 
         return true;
