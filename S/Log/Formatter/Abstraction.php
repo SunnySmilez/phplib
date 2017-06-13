@@ -8,8 +8,9 @@ abstract class Abstraction {
             $uri    = str_replace('\\', '_', trim(\Core\Env::getCliClass(), '\\')) ?: \S\Request::server('argv', array())[1];
             $params = array_slice(\S\Request::server('argv', array()), 2) ?: array();
         } else {
-            $uri    = \Core\Env::getControllerName(true);
-            $params = $_REQUEST ?: array();
+            $module_name = \Core\Env::getModuleName(true);
+            $uri         = ($module_name === 'Index' ? "" : $module_name . "_") . \Core\Env::getControllerName(true);
+            $params      = $_REQUEST ?: array();
         }
 
         $common = array(
