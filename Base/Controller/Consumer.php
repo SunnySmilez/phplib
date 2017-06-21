@@ -1,4 +1,6 @@
 <?php
+namespace Base\Controller;
+
 /**
  * 消费者 控制器基类
  * 1.生产者 向队列里发送消息
@@ -11,14 +13,21 @@ abstract class Consumer extends \Yaf\Controller_Abstract {
 
     /**
      * 限制调用
+     *
      * @throws \Yaf\Exception\LoadFailed\Controller
      */
-    public function init(){
+    public function init() {
         //限制请求为本地发送的fastcgi
-
+        if ('127.0.0.1' != \S\Util\Ip::getClientIp()) {
+            throw new \Yaf\Exception\LoadFailed\Controller('非本地请求');
+        }
+        if (false === strpos(strtolower(\S\Request::server('GATEWAY_INTERFACE')), 'cgi')) {
+            throw new \Yaf\Exception\LoadFailed\Controller('非cgi请求');
+        }
     }
 
-    public function getParams($key){
-
+    public function getParams($key) {
+        return strip_tags($this->getRequest()->getParam($key));
     }
+
 }

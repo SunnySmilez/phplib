@@ -61,6 +61,16 @@ abstract class Base extends Action {
         return $ret;
     }
 
+    protected function render($tpl = '', array $response = null) {
+        if (\S\Response::getFormatter() == \S\Response::FORMAT_PLAIN) {
+            \S\Response::displayPlain($this->response);
+        } elseif (\S\Response::getFormatter() == \S\Response::FORMAT_JSON) {
+            \S\Response::displayJson($this->response);
+        } else {
+            $this->displayView($this->response);
+        }
+    }
+
     /**
      * 生成菜单并把变量抛向需要菜单有菜单的模版
      *

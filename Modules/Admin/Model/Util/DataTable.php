@@ -12,8 +12,7 @@ class DataTable {
      * @throws \S\Exception
      */
     public static function getTableParams() {
-        $module = \Core\Env::getModuleName(true);
-        if ($module != "Admin") {
+        if (0 !== strpos(\S\Request::server('PATH_INFO'), '/admin')) {
             throw new \S\Exception("只有后台模块才能使用dataTable组件");
         }
 

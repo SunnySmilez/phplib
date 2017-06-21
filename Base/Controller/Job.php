@@ -15,11 +15,14 @@ abstract class Job extends \Yaf\Controller_Abstract {
      */
     public function init(){
         //限制请求为本地cli
-        if (php_sapi_name() != 'cli') {
+        if (!\Core\Env::isCli()) {
             throw new \Yaf\Exception\LoadFailed\Controller('not find');
         }
 
         //请求体必须是Yaf_Request_Simple
+        if (!($this->getRequest() instanceof \Yaf\Request\Simple)) {
+            throw new \Yaf\Exception\LoadFailed\Controller('非法请求体类型');
+        }
     }
 
     /**
@@ -28,6 +31,7 @@ abstract class Job extends \Yaf\Controller_Abstract {
      * @return array
      */
     public function getParams($key){
-
+        return strip_tags($this->getRequest()->getParam($key));
     }
+
 }

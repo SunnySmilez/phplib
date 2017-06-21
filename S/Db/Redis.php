@@ -166,7 +166,6 @@ class Redis {
         Timelog::instance()->log('redis', array(
             'class'    => __CLASS__,
             'method'   => $function,
-            'idc'      => \Core\Env::getIdc(),
             'resource' => $this->name,
             'params'   => $params,
         ));

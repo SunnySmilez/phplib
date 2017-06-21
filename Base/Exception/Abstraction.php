@@ -36,7 +36,7 @@ class Abstraction extends \Exception {
             if (!\S\Config::confError($key)) {
                 $msg_data['msg'] = $error_flag;
             } else {
-                $msg_data = \S\Config::confError($key . '.msg');
+                $msg_data = \S\Config::confError($key);
             }
         } else {
             $msg_data['msg'] = $error_flag;

@@ -169,7 +169,6 @@ class Table {
         Timelog::instance()->log($this->type, array(
             'class'    => __CLASS__,
             'method'   => $function,
-            'idc'      => \Core\Env::getIdc(),
             'resource' => $this->name,
             'params'   => $params,
         ));

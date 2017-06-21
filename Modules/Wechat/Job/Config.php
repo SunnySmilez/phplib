@@ -9,7 +9,7 @@ use Modules\Wechat\Model\Data\Config as DataConfig;
  * @package     Modules\Wechat\Job
  * @description 微信基础配置更新任务
  */
-class Config extends \Base\Jobs\Job {
+class Config extends \Base\Controller\Job {
 
     const RETRY_TIMES = 3;  //失败重试次数
     /**
@@ -17,18 +17,14 @@ class Config extends \Base\Jobs\Job {
      */
     protected $_configs;
 
-    public function action($argv = array()) {
-        $wechat_name = $argv ? $argv[0] : null;
+    public function updateConfigAction() {
+        $wechat_name = $this->getParams('wechat_name') ?: null;
 
-        $this->init();
+        $this->_configs = DataConfig::getBaseConfig();
 
         //获取access_token必须放在第一位，作为其他接口调用的基础
         $this->updateAccessToken($wechat_name);
         $this->updateJSApiTicket($wechat_name);
-    }
-
-    protected function init() {
-        $this->_configs = DataConfig::getBaseConfig();
     }
 
     /**
