@@ -88,11 +88,6 @@ class Api {
             }
         }
 
-        //校验key值是否正确
-        if ($key !== $config_key) {
-            throw new \Base\Exception\Controller(self::CHECK_KEY_ERROR, self::CHECK_KEY_NO);
-        }
-
         //校验m值是否正确
         $params = $_REQUEST;
         unset($params['key']);
