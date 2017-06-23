@@ -17,7 +17,7 @@ abstract class Abstraction extends \Base\Controller\Common {
      * @return bool
      */
     public function displayView($tpl_vars) {
-        $ext      = \Yaf\Application::app()->getConfig()->get('yaf.view.ext');
+        $ext      = \Yaf\Application::app()->getConfig()->get('application.view.ext');
         $tpl_path = str_replace('_', DIRECTORY_SEPARATOR, $this->getRequest()->controller) . '.' . $ext;
         $this->_view->display(ucfirst($tpl_path), $tpl_vars);
     }

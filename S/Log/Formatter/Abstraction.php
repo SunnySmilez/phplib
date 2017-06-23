@@ -5,8 +5,12 @@ abstract class Abstraction {
 
     protected function getCommon() {
         if (\Core\Env::isCli()) {
-            $uri    = \S\Request::server('argv', array())[1] . '::' . \S\Request::server('argv', array())[2];
-            $params = array_slice(\S\Request::server('argv', array()), 3) ?: array();
+            $module     = \S\Request::server('argv', array())[1];
+            $controller = \S\Request::server('argv', array())[2];
+            $action     = \S\Request::server('argv', array())[3];
+
+            $uri    = ('Index' == $module ? '' : $module . '_') . $controller . '::' . $action;
+            $params = array_slice(\S\Request::server('argv', array()), 4) ?: array();
         } else {
             $uri    = \S\Request::server('PATH_INFO');
             $params = $_REQUEST ?: array();
