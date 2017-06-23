@@ -16,7 +16,7 @@ define('APP_ENVIRON_PRODUCT', 'product');
  * 2.开发测试生成环境判断问题
  */
 class Env {
-    public static $namespace = array('Service', 'Data', 'Dao', 'Jobs');
+    public static $namespace = array('Service', 'Data', 'Dao');
     public static $charset = "utf-8";
 
     /**

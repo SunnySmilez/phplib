@@ -9,8 +9,12 @@ class Error {
      * 异常及error处理方式
      *
      * @param \Throwable $e
-     *
      * @return bool
+     * @throws \Base\Exception\Abstraction
+     * @throws \Error
+     * @throws \S\Exception
+     * @throws \S\Validate\Exception
+     * @throws \Throwable
      */
     public static function handle(\Throwable $e) {
         //记录info日志
@@ -22,8 +26,9 @@ class Error {
         \S\Log\Logger::getInstance()->info();
 
         //\Error或原生\Exception记录error日志
-        if ($e instanceof \Error || !($e instanceof \Base\Exception\Abstraction
-            || $e instanceof \S\Exception || $e instanceof \S\Validate\Exception)) {
+        if ($e instanceof \Error ||
+            !($e instanceof \Base\Exception\Abstraction || $e instanceof \S\Exception || $e instanceof \S\Validate\Exception)
+        ) {
             $msg = array(
                 'exception' => $e,
             );
@@ -60,19 +65,14 @@ class Error {
             ob_start();
         }
 
+        //返回输出
         if (Response::getFormatter() === Response::FORMAT_PLAIN) {
             Response::displayPlain($e->getMessage());
-        } else if (Response::getFormatter() === Response::FORMAT_JSON) {
+        } elseif (Response::getFormatter() === Response::FORMAT_JSON) {
             Response::displayJson(array(), $e->getCode(), $e->getMessage());
-        } else if (0 === strpos(\S\Request::server('PATH_INFO'), '/admin')) {
-            $view = new \Yaf\View\Simple(ADMIN_BASE_TPL_PATH);
-            $view->display('error.phtml', array(
-                'retcode' => $e->getCode(),
-                'msg'     => $e->getMessage(),
-            ));
         } else {
-            $view = new \Yaf\View\Simple(PHPLIB . "/Base/View/");
-            $view->display('Error.phtml', array(
+            $view = new \Yaf\View\Simple(dirname(APP_DEFAULT_ERROR_VIEW));
+            $view->display(basename(APP_DEFAULT_ERROR_VIEW), array(
                 'retcode' => $e->getCode(),
                 'msg'     => $e->getMessage(),
             ));
@@ -106,10 +106,6 @@ class Error {
             default:
                 return false;
         }
-    }
-
-    public function cliShowError() {
-
     }
 
 }

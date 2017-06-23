@@ -27,7 +27,6 @@ class Base extends \Yaf\Plugin_Abstract {
     public function dispatchLoopShutdown(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response) {
         //记录日志
         \S\Log\Logger::getInstance()->info();
-
         return true;
     }
 
