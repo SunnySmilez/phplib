@@ -26,8 +26,11 @@ abstract class Abstraction {
             $key = $to_path;
         } else {
             if (\Core\Env::isCli()) {
-                $cli_classname = \S\Request::server('argv', array())[1];
-                $key = strtolower(str_replace('_', '/', $cli_classname)) . '/' . \S\Request::server('argv', array())[2];
+                $module = strtolower(\S\Request::server('argv', array())[1]);
+                $cli_classname = strtolower(\S\Request::server('argv', array())[2]);
+                $action = strtolower(\S\Request::server('argv', array())[3]);
+
+                $key = ('index' == strtolower($module) ? '' : $module . '/') . str_replace('_', '/', $cli_classname) . '/' . $action;
             } else {
                 $key = trim(\S\Request::server('PATH_INFO'), '/');
             }
