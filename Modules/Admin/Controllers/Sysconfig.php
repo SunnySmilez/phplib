@@ -110,7 +110,7 @@ class Sysconfig extends Base {
         $data = (new \Modules\Admin\Model\Data\Sysconfig\Visitlog())->getDataTable($uname, $ctrl, $time_from, $time_to);
         if (isset($data['data']) && !empty($data['data'])) {
             foreach ($data['data'] as $key => $val) {
-                if ($val['uri'] == '/admin/login/check' || $val['uri'] == '/admin/login/login') {
+                if ($val['uri'] == '/Admin/login/check' || $val['uri'] == '/Admin/login/login') {
                     $data['data'][$key]['request_info'] = json_encode(array());
                 } else {
                     $data['data'][$key]['request_info'] = \Dao\Db::decrypt($val['request_info']);

@@ -26,9 +26,12 @@ abstract class Abstraction {
             $key = $to_path;
         } else {
             if (\Core\Env::isCli()) {
-                $module = strtolower(\S\Request::server('argv', array())[1]);
-                $cli_classname = strtolower(\S\Request::server('argv', array())[2]);
-                $action = strtolower(\S\Request::server('argv', array())[3]);
+                $optind = null;
+                $opts   = getopt('c:m:a:', [], $optind);
+
+                $module        = $opts['m'] ?: 'Index';
+                $cli_classname = $opts['c'];
+                $action        = $opts['a'] ?: 'Index';
 
                 $key = ('index' == strtolower($module) ? '' : $module . '/') . str_replace('_', '/', $cli_classname) . '/' . $action;
             } else {

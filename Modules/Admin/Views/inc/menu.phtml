@@ -1,7 +1,7 @@
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
         <div class="navbar nav_title">
-            <a href="/admin/welcome/index" class="site_title">
+            <a href="/Admin/welcome/index" class="site_title">
                 <i class="fa fa-cloud"></i>
                 <span><?php echo ADMIN_SYS_NAME; ?></span>
             </a>
@@ -37,7 +37,7 @@
             <a data-toggle="tooltip" data-placement="top" title="Lock">
                 <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
             </a>
-            <a href="/admin/login/logout" data-toggle="tooltip" data-placement="top" title="Logout">
+            <a href="/Admin/login/logout" data-toggle="tooltip" data-placement="top" title="Logout">
                 <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
             </a>
         </div>
@@ -59,8 +59,8 @@
                         <span class=" fa fa-angle-down"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-usermenu pull-right">
-                        <li><a href="/admin/user/editUserInfo?uid=<?= $_SESSION['uid']?>">个人信息</a></li>
-                        <li><a href="/admin/login/logout"><i class="fa fa-sign-out pull-right"></i>登出</a></li>
+                        <li><a href="/Admin/user/editUserInfo?uid=<?= $_SESSION['uid']?>">个人信息</a></li>
+                        <li><a href="/Admin/login/logout"><i class="fa fa-sign-out pull-right"></i>登出</a></li>
                     </ul>
                 </li>
             </ul>

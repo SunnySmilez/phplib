@@ -5,12 +5,21 @@ abstract class Abstraction {
 
     protected function getCommon() {
         if (\Core\Env::isCli()) {
-            $module     = \S\Request::server('argv', array())[1];
-            $controller = \S\Request::server('argv', array())[2];
-            $action     = \S\Request::server('argv', array())[3];
+            $optind   = null;
+            $opts     = getopt('c:m:a:', [], $optind);
+            $pos_args = array_slice(\S\Request::server('argv', array()), $optind);
+
+            $module     = $opts['m'] ?: 'Index';
+            $controller = $opts['c'];
+            $action     = $opts['a'] ?: 'Index';
+
+            $params = array();
+            foreach ($pos_args as $param_str) {
+                list($key, $val) = explode('=', $param_str);
+                $params[$key] = $val;
+            }
 
             $uri    = ('Index' == $module ? '' : $module . '_') . $controller . '::' . $action;
-            $params = array_slice(\S\Request::server('argv', array()), 4) ?: array();
         } else {
             $uri    = \S\Request::server('PATH_INFO');
             $params = $_REQUEST ?: array();
