@@ -38,6 +38,16 @@
                 </div>
             </div>
 
+            <div class="auth_type">
+                <label>认证方式</label>
+                <label class="radio-inline">
+                    <input name="auth_type" type="radio" checked="checked" value="1"">本地认证
+                </label>
+                <label class="radio-inline">
+                    <input name="auth_type" type="radio" value="2"> auth认证
+                </label>
+            </div>
+
             <button class="js-login">登录</button>
 
             <div class="keep">
@@ -81,7 +91,8 @@
 
             $.post("<?= APP_ADMIN_PATH; ?>/login/login", {
                     username: $username.val(),
-                    password: $password.val()
+                    password: $password.val(),
+                    auth_type: $('input:radio[name="auth_type"]:checked').val()
                 },
                 function (data) {
                     if (data.retcode == 2000000) {
