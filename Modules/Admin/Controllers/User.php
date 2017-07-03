@@ -66,6 +66,7 @@ class User extends Base {
         $phone       = $this->getParams('phone');
         $email       = $this->getParams('email');
         $nick        = $this->getParams('nick');
+        $password    = $this->getParams('password');
         $description = $this->getParams('description');
         $gids        = \S\Request::post('group');
 
@@ -87,8 +88,23 @@ class User extends Base {
         if (!preg_match('/^1[345789]\d{9}$/', $phone)) {
             throw new Exception('error.admin.phone_of_the_correct_format');
         }
+        if ($password && !preg_match('/^[a-zA-Z0-9.-_@`=;,.~!@#$%^*()+}{:?]{7,32}$/', $password)) {
+            throw new Exception('error.admin.password_of_the_correct_format');
+        }
 
-        (new ServiceUser())->saveUserInfo($uid, $phone, $nick, $isadmin, $status, $uname, $description, $email);
+        $user_info = array(
+            'phone'       => $phone,
+            'email'       => $email,
+            'nick'        => $nick,
+            'isadmin'     => $isadmin,
+            'status'      => $status,
+            'uname'       => $uname,
+            'description' => $description,
+        );
+        if ($password) {
+            $user_info['password'] = $password;
+        }
+        (new ServiceUser())->saveUserInfo($uid, $user_info);
 
         if ($gids) {
             $data_user->addUserGroupRel($gids, $uid);

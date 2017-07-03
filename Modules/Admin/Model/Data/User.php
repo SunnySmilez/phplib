@@ -1,6 +1,7 @@
 <?php
 namespace Modules\Admin\Model\Data;
 
+use Base\Exception\Data as Exception;
 use Modules\Admin\Model\Dao\Db\User\Groups as DbGroups;
 use Modules\Admin\Model\Dao\Db\User\Info as DbUserInfo;
 use Modules\Admin\Model\Dao\Db\User\Group as DbUserGroup;
@@ -108,7 +109,12 @@ class User {
     }
 
     public function auth($email, $password_with_otp) {
-        return (new \Modules\Admin\Model\Dao\Api\Auth\Auth())->auth($email, $password_with_otp);
+        $result = (new \Modules\Admin\Model\Dao\Api\Auth\Auth())->auth($email, $password_with_otp);
+        if ($result) {
+            return true;
+        } else {
+            throw new Exception("error.admin.login_error");
+        }
     }
 
     /**

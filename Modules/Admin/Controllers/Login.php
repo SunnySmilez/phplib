@@ -10,6 +10,7 @@ use Base\Exception\Controller as Exception;
  * @name 管理系统登录
  */
 class Login extends Base {
+
     protected $sys_view = true;
 
     /**
@@ -19,8 +20,9 @@ class Login extends Base {
     public function loginAction() {
         $username = $this->getParams("username");
         $password = $this->getParams("password");
+        $auth_type = $this->getParams('auth_type');
 
-        $user_info = (new ServiceUser())->loginVerify($username, $password);
+        $user_info = (new ServiceUser())->loginVerify($username, $password, $auth_type);
 
         $_SESSION = array(
             'uid'        => $user_info['uid'],
