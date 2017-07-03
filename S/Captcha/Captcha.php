@@ -66,8 +66,6 @@ class Captcha {
 
         if (\Core\Env::isPhpUnit()) {
             \Yaf\Registry::set('captcha', $this->code);
-        }elseif(!\Core\Env::isProductEnv()){
-            \S\Log\Context::setInfo(array('captcha_code' => $this->code));
         }
     }
 
@@ -90,15 +88,20 @@ class Captcha {
      * @throws Exception
      */
     public function show($mode, array $args) {
+        //todo 添加频率限制器
         if (!in_array($mode, array(self::MODE_SMS, self::MODE_PIC, self::MODE_MAIL))) {
             throw new Exception("captcha show mode: `{$mode}` is not support");
         }
 
-        $handler = __NAMESPACE__."\\Handler\\".ucfirst($mode);
-        $args['code'] = $this->code;
-        $ret = call_user_func(array(new $handler, __FUNCTION__), $args);
+        if(!\Core\Env::isPhpUnit()){
+            $handler = __NAMESPACE__."\\Handler\\".ucfirst($mode);
+            $args['code'] = $this->code;
+            $ret = call_user_func(array(new $handler, __FUNCTION__), $args);
 
-        return $ret;
+            return $ret;
+        }else{
+            return true;
+        }
     }
 
     /**
