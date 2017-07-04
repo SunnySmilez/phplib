@@ -94,9 +94,11 @@ class Captcha {
         }
 
         if(!\Core\Env::isPhpUnit()){
+            //todo 支持自定义handler
             $handler = __NAMESPACE__."\\Handler\\".ucfirst($mode);
             $args['code'] = $this->code;
             $ret = call_user_func(array(new $handler, __FUNCTION__), $args);
+            //todo 判断发送结果 失败抛出异常
 
             return $ret;
         }else{
@@ -106,11 +108,12 @@ class Captcha {
 
     /**
      * 校验验证码
+     * todo 支持多种校验方式 验证码不覆盖的需求
      *
      * @param string $val_code 用户输入的验证码
      * @param string $id       验证码ID
      * @param int    $clear    验证码的失效规则 在校验int次后失效
-     * @return bool|null       成功返回true 失败时默认返回false但同时验证码失效会返回null
+     * @return bool|null       成功返回true 失败时返回false 验证超过限定次数时返回null
      */
     public static function validate($val_code, $id, $clear = 3) {
         if (empty($val_code)) {
