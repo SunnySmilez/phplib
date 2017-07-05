@@ -12,20 +12,20 @@ class User {
     /**
      * 保存用户信息
      *
-     * @param $uid
-     * @param $phone
-     * @param $nick
-     * @param $isadmin
-     * @param $status
-     * @param $uname
-     * @param $description
-     * @param $email
+     * @param       $uid
+     * @param array $user_info
+     * @param       $auth_type
      *
      * @return bool
-     * @throws Exception
      */
-    public function saveUserInfo($uid, array $user_info) {
-        if ($user_info['password']) {
+    public function saveUserInfo($uid, array $user_info, $auth_type) {
+        $data_user = new DataUser();
+
+        if (self::AUTH_TYPE_REMOTE_AUTH == $auth_type) {
+            $email = $user_info['email'];
+
+            $user_info = array_merge($user_info, $data_user->getUserInfoFromAuth($email));
+        } else if ($user_info['password']) {
             $salt     = crc32($user_info['uname']);
             $password = self::_getEncryptPassword($user_info['password'], $salt);
 
@@ -42,7 +42,7 @@ class User {
             }
         }
 
-        return (new DataUser)->saveUserInfo($user_info, $uid);
+        return $data_user->saveUserInfo($user_info, $uid);
     }
 
     /**
@@ -55,7 +55,7 @@ class User {
      * @throws Exception
      * @throws \Exception
      */
-    public function loginVerify($username, $password, $auth_type) {
+    public function loginVerify($username, $password) {
         $user_info = (new DataUser())->getUserInfoByName($username);
         if (!$user_info) {
             throw new Exception('error.admin.login_error');
@@ -70,6 +70,8 @@ class User {
                 throw new Exception('error.admin.login_error');
             }
         } else {
+            $auth_type = (false === strpos($username, '@') ? self::AUTH_TYPE_LOCAL : self::AUTH_TYPE_REMOTE_AUTH);
+
             if (self::AUTH_TYPE_LOCAL == $auth_type) {
                 $password_with_otp = $password;
 
@@ -109,7 +111,7 @@ class User {
      */
     private static function _sendAuthMail($name, $email, $otp_secret) {
         $company = "jrmf360";
-        $otp_url = sprintf("otpauth://totp/%s:%s?secret=%s&issuer=%s", $company, $email, $otp_secret, $company);
+        $otp_url = sprintf("otpauth://totp/%s:%s?secret=%s&issuer=%s", $company, $name, $otp_secret, $company);
         $base64_otp              = self::_getBase64QRCode($otp_url);
         $base64_ios_download     = self::_getBase64QRCode('https://itunes.apple.com/cn/app/google-authenticator/id388497605');
         $base64_android_download = self::_getBase64QRCode(ADMIN_STATIC_PATH . '/build/app/google_authenticator_4.60.apk');
@@ -123,6 +125,7 @@ class User {
             'base64_android_download' => $base64_android_download,
         ));
 
+        //todo 在admin bootstrap中定义
         $config = array(
             "host" => 'imap.exmail.qq.com',
             "port" => '25',

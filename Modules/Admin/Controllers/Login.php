@@ -20,9 +20,8 @@ class Login extends Base {
     public function loginAction() {
         $username = $this->getParams("username");
         $password = $this->getParams("password");
-        $auth_type = $this->getParams('auth_type');
 
-        $user_info = (new ServiceUser())->loginVerify($username, $password, $auth_type);
+        $user_info = (new ServiceUser())->loginVerify($username, $password);
 
         $_SESSION = array(
             'uid'        => $user_info['uid'],
