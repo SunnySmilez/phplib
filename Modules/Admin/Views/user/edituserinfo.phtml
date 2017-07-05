@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
     <title><?= $uid ? "编辑" : "新增"; ?>用户</title>
-    <? include(ADMIN_BASE_TPL_PATH . "/inc/include.phtml"); ?>
+    <?php include(ADMIN_BASE_TPL_PATH . "/inc/include.phtml"); ?>
     <link href="<?= ADMIN_STATIC_PATH ?>/build/css/chosen.min.css" type="text/css" rel="stylesheet">
     <script src="<?= ADMIN_STATIC_PATH ?>/build/js/chosen.jquery.min.js"></script>
 </head>
@@ -44,7 +44,7 @@
                                value="<?= $email; ?>">
                     </div>
 
-                    <? if ($uid || \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type) { ?>
+                    <?php if ($uid || \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type) { ?>
                         <div class="form-group input-group  input-control">
                             <span class="input-group-addon">用户名&nbsp;&nbsp;&nbsp;</span>
                             <input type="text" class="form-control" id="uname" name="uname"
@@ -68,7 +68,7 @@
                         <span class="span-phone" id="aphonecheck"></span>
                     <?}?>
 
-                    <? if (\Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type) { ?>
+                    <?php if (\Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type) { ?>
                         <div class="form-group input-group  input-control">
                             <span class="input-group-addon">密码&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             <input type="text" class="form-control" id="description" name="password" placeholder="仅供本地认证使用">
@@ -83,7 +83,7 @@
                         <span class="input-group-addon">用户组&nbsp;&nbsp;&nbsp;&nbsp;</span>
                         <select class="form-control chosen-select" id="group" name="group[]" data-placeholder="点击选择用户所属组"
                                 multiple>
-                            <?
+                            <?php
                             if ($groups && is_array($groups)) {
                                 foreach ($groups as $v) {
                                     $select = is_array($group) && in_array($v['gid'], $group) ? 'selected="selected"' : '';
@@ -107,7 +107,7 @@
                         </label>
                     </div>
 
-                    <? if ($uid) { ?>
+                    <?php if ($uid) { ?>
                         <div class="form-group input-group  input-control">
                             <label>用户状态</label>
                             <label class="checkbox-inline">
