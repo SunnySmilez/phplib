@@ -35,7 +35,7 @@ class Freq
     /**
      * @var \Redis
      */
-    private static $_redis;
+    private static $_redis; //todo 通过cache实现
 
     public function __construct($name=\S\Db\Redis::NAME_DEFAULT){
         if(!self::$_redis){

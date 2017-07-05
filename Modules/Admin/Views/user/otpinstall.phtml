@@ -1,7 +1,7 @@
 <div>
     <h4>账户信息</h4>
     <p>账户名：<?= $username?></p>
-    <p>初始化账户密码：<?= $password?></p>
+    <p>otp密钥：<?= $otp_secret?></p>
     <p>注意：请及时登录管理后台并修改密码，保证个人信息安全！</p>
 
     <h4>二步认证信息</h4>
@@ -16,7 +16,7 @@
     </p>
     <p>备注：如果扫码后无法下载，请到应用市场搜索谷歌身份验证器(ios请搜索Google-Authenticator)</p>
     <p>第二步：用Google Authenticator客户端扫描二维码</p>
-    <p><img src="<?= $base64_qrcode ?>" alt=""
+    <p><img src="<?= $base64_otp ?>" alt=""
             style="border: 1px #ccc solid;box-shadow: 1px 2px 5px #ccc; border-radius: 15px 2px 15px 2px ;"></p>
     <p>小米用户也可用“扫一扫”应用来扫该二维码</p>
     <p>扫码后，出现六位动态码即为成功；在需要动态码的后台系统输入密码后再输入六位动态码才能登陆</p>

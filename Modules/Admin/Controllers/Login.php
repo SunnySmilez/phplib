@@ -10,6 +10,7 @@ use Base\Exception\Controller as Exception;
  * @name 管理系统登录
  */
 class Login extends Base {
+
     protected $sys_view = true;
 
     /**

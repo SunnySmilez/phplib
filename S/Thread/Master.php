@@ -3,7 +3,8 @@
 namespace S\Thread;
 /**
  * Class Master
- * @package S\Thread
+ *
+ * @package     S\Thread
  * @description 进程管理主进程类
  *
  * 此类用于进行进程管理的入口，使用示例：
@@ -33,7 +34,7 @@ class Master {
     protected $pids = array();
     protected $work_proc = array();
 
-    public function __construct(){
+    public function __construct() {
         self::$_master_pid_file = self::MASTER_PID_FILE_PREFIX . APP_NAME;
 
         //进程组和回话组组长
@@ -41,19 +42,20 @@ class Master {
         //执行时长
         set_time_limit(0);
         //cli模式
-        if (php_sapi_name() != "cli"){
+        if (php_sapi_name() != "cli") {
             Utils::echoInfo("only run in command line mode\n");
             exit();
         }
         $pid = file_get_contents(self::$_master_pid_file);
-
-        if($pid){
+        if ($pid && posix_kill($pid, 0)) {
             posix_kill($pid, SIGTERM);
+
+            //等待上一个进程死掉
+            while (file_get_contents(self::$_master_pid_file)) {
+                sleep(3);
+            }
         }
-        //等待上一个进程死掉
-        while(file_get_contents(self::$_master_pid_file)){
-            sleep(3);
-        }
+
         //进程pid落地
         file_put_contents(self::$_master_pid_file, getmypid());
     }
@@ -61,40 +63,43 @@ class Master {
     /**
      * 启动并且实时监控工作进程
      */
-    public function main(){
+    public function main() {
         Utils::echoInfo("master start");
         $this->registerSigHandler();
 
         $this->isRunning = true;
 
-        while(true){
+        while ($this->isRunning) {
             $this->manageWorkers();
-            pcntl_signal_dispatch();
-            if (!$this->isRunning) break;
+
             sleep(self::MASTER_SLEEP);
             pcntl_signal_dispatch();
-            if (!$this->isRunning) break;
         }
 
-        //如果收到退出信号
-        while(true){
+        while (true) {
             pcntl_signal_dispatch();
-            if(count($this->pids) == 0) break;
+            if (count($this->pids) == 0) {
+                break;
+            }
+
             sleep(5);
         }
-        file_put_contents(self::$_master_pid_file,"");
+
+        file_put_contents(self::$_master_pid_file, "");
         exit();
     }
 
     /**
      * 信号处理
+     *
      * @param int $sig
+     *
      * @access private
      * @return void
      */
     public function sigHandler($sig) {
         Utils::echoInfo("master receive $sig");
-        switch(intval($sig)) {
+        switch (intval($sig)) {
             case SIGCHLD:
                 //当子进程停止或退出时通知父进程
                 $this->waitChild();
@@ -120,6 +125,7 @@ class Master {
 
     /**
      * 信号注册
+     *
      * @access protected
      * @return void
      */
@@ -133,11 +139,12 @@ class Master {
 
     /**
      * 处理退出的子进程
+     *
      * @access protected
      * @return void
      */
     protected function waitChild() {
-        while( ($pid = pcntl_waitpid(-1, $status, WNOHANG)) > 0 ) {
+        while (($pid = pcntl_waitpid(-1, $status, WNOHANG)) > 0) {
             Utils::echoInfo("master waitpid $pid");
             unset($this->pids[$pid]);
         }
@@ -150,7 +157,7 @@ class Master {
      */
     protected function cleanup($pid = null) {
         Utils::echoInfo("clean up $pid");
-        if(!$pid){
+        if (!$pid) {
             if (count($this->pids)) {
                 foreach ($this->pids as $pid => $thread) {
                     Utils::echoInfo("master posix kill $pid");
@@ -159,9 +166,29 @@ class Master {
             }
             Utils::echoInfo("master stop");
             $this->isRunning = false;
-        }else{
+        } else {
             Utils::echoInfo("master posix kill $pid");
             posix_kill($pid, SIGTERM);
+        }
+    }
+
+    /**
+     * 管理进程
+     */
+    protected function manageWorkers() {
+        $obj_thread_config = new Config();
+        $thread_config     = $obj_thread_config->getWorkerConfig();
+        $this->work_proc   = Utils::getWorkerProcessInfo($this->pids);
+        //查看进程情况，按配置启动和减少进程
+        foreach ($thread_config as $classname => $v) {
+            $num = count($this->work_proc[$classname]) - $v['work_num'];
+            if ($num >= 0) {
+                for ($i = 0; $i < $num; $i++) {
+                    $this->cleanup($this->work_proc[$classname][$i]);
+                }
+            } else {
+                $this->fork($classname);
+            }
         }
     }
 
@@ -173,7 +200,7 @@ class Master {
      * @return bool
      * @throws \Exception
      */
-    protected function fork($classname){
+    protected function fork($classname) {
         $pid = pcntl_fork();
         if ($pid == -1) {
             throw new \Exception("can not fork new process");
@@ -182,7 +209,7 @@ class Master {
                 'classname' => $classname,
             );
         } else {
-            Utils::setProcessTitle("THREAD_PHP_".strtoupper(APP_NAME)."_".$classname);
+            Utils::setProcessTitle("THREAD_PHP_" . strtoupper(APP_NAME) . "_" . $classname);
             //设置cliclass
             \Core\Env::setCliClass($classname);
             /** @var \S\Thread\Worker $work */
@@ -190,27 +217,8 @@ class Master {
             $work->doTask();
             exit();
         }
+
         return true;
     }
 
-    /**
-     * 管理进程
-     */
-    protected function manageWorkers(){
-        $obj_thread_config = new Config();
-        $thread_config = $obj_thread_config->getWorkerConfig();
-        $this->work_proc = Utils::getWorkerProcessInfo($this->pids);
-        //查看进程情况，按配置启动和减少进程
-        foreach($thread_config as $classname=>$v){
-            $num = count($this->work_proc[$classname]) - $v['work_num'];
-            if($num >= 0){
-                for($i=0;$i<$num;$i++){
-                    $this->cleanup($this->work_proc[$classname][$i]);
-                }
-            }else{
-               $this->fork($classname);
-            }
-        }
-    }
-    
 }

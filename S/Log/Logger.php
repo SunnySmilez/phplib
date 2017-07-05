@@ -79,7 +79,7 @@ class Logger {
         $obj_format = new $format;
         $message    = $obj_format->format($message);
         foreach ($this->_handlers as $handler) {
-            $handler->handle($levelName, $message, $to_path);
+            $handler->write($levelName, $message, $to_path);
         }
 
         return true;
@@ -101,4 +101,14 @@ class Logger {
         return $this->addRecord(LogLevel::WARNING, $message, $to_path);
     }
 
+    /**
+     * 统计日志
+     * @param array  $message
+     * @param string $index       索引名称
+     * @return bool
+     */
+    public function stat(array $message, $index) {
+        $index = APP_NAME . "-" . $index;
+        return $this->addRecord(LogLevel::STAT, $message, $index);
+    }
 }

@@ -7,13 +7,14 @@ namespace S\Log;
  */
 class LogLevel {
     const EMERGENCY = 'emergency';
-    const ALERT = 'alert';
-    const CRITICAL = 'critical';
-    const ERROR = 'error';
-    const WARNING = 'warning';
-    const NOTICE = 'notice';
-    const INFO = 'info';
-    const DEBUG = 'debug';
+    const ALERT     = 'alert';
+    const CRITICAL  = 'critical';
+    const ERROR     = 'error';
+    const WARNING   = 'warning';
+    const NOTICE    = 'notice';
+    const INFO      = 'info';
+    const DEBUG     = 'debug';
+    const STAT      = 'stat';
 
     public static $levels = array(
         self::DEBUG     => 'DEBUG',
@@ -24,5 +25,6 @@ class LogLevel {
         self::CRITICAL  => 'CRITICAL',
         self::ALERT     => 'ALERT',
         self::EMERGENCY => 'EMERGENCY',
+        self::STAT      => 'STAT',
     );
 }

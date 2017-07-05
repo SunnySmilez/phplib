@@ -26,8 +26,19 @@ class Auth {
         return !empty($resp_data['user_info']);
     }
 
+    public function getUserInfo($email) {
+        $params = array(
+            'email' => $email,
+        );
+        $token = \S\Config::confSecurity('api.ldap.password');  //todo 如何存放
+
+        $resp_data = self::_request(self::PATH_AUTH . '?token=' . $token, $params);
+
+        return $resp_data['user_info'];
+    }
+
     private static function _request($path, array $params) {
-        $resp_json = (new \S\Http(AUTH_BASE_URL))->request(\S\Http::METHOD_POST, $path, $params);
+        $resp_json = (new \S\Http(ADMIN_AUTH_BASE_URL))->request(\S\Http::METHOD_POST, $path, $params);
         $resp_data = json_decode($resp_json, true);
 
         if (empty($resp_data['retcode']) || self::ERR_CODE_SUCC != $resp_data['retcode']) {

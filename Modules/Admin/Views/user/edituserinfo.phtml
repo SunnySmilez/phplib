@@ -7,56 +7,80 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
-    <title><?php echo $uid ? "编辑" : "新增"; ?>用户</title>
+    <title><?= $uid ? "编辑" : "新增"; ?>用户</title>
     <?php include(ADMIN_BASE_TPL_PATH . "/inc/include.phtml"); ?>
-    <link href="<?= ADMIN_STATIC_PATH ?>/build/css//chosen.min.css" type="text/css" rel="stylesheet">
+    <link href="<?= ADMIN_STATIC_PATH ?>/build/css/chosen.min.css" type="text/css" rel="stylesheet">
     <script src="<?= ADMIN_STATIC_PATH ?>/build/js/chosen.jquery.min.js"></script>
 </head>
 
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
-        <?php echo $menuview; ?>
+        <?= $menuview; ?>
 
         <!-- 内容区域 -->
         <div class="right_col" role="main">
-
-            <div class="title_left">
-                <h3><?php echo $uid ? "编辑" : "添加"; ?>用户</h3>
+            <div class="page-title clearfix">
+                <div class="title_left">
+                    <h3><?= $uid ? "编辑" : "添加"; ?>用户</h3>
+                </div>
             </div>
+
             <div class="modal-body">
                 <form id="userform">
-                    <div class="form-group input-group  input-control">
-                        <span class="input-group-addon">用户名&nbsp;</span>
-                        <input type="text" class="form-control" id="uname" name="uname"
-                               placeholder="大小写拉丁字母(a-z A-Z)、汉字、数字(0-9)、英文句号(.)或下划线(_)"
-                               onBlur="checkName(this.value);" value="<?php echo $uname; ?>">
-                    </div>
-                    <span class="span-name" id="anamecheck"></span>
-                    <div class="form-group input-group  input-control">
-                        <span class="input-group-addon">&nbsp;&nbsp;姓名&nbsp;&nbsp;</span>
-                        <input type="text" maxlength="11" class="form-control" id="nick" name="nick" placeholder="2-15个汉字"
-                               value="<?php echo $nick; ?>">
+                    <div class="form-group input-group input-control col-md-3">
+                        <span class="input-group-addon">认证方式</span>
+                        <select id="auth_type" name="auth_type" class="form-control">
+                            <option value="2" <?= (\Modules\Admin\Model\Service\User::AUTH_TYPE_REMOTE_AUTH == $auth_type ?
+                                'selected="selected"' : '')?>>auth认证</option>
+                            <option value="1" <?= (\Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type ?
+                                'selected="selected"' : '')?>>本地认证</option>
+                        </select>
                     </div>
                     <div class="form-group input-group  input-control">
-                        <span class="input-group-addon">&nbsp;&nbsp;手机&nbsp;&nbsp;</span>
-                        <input type="text" maxlength="11" class="form-control" id="phone" name="phone" placeholder="11位数字"
-                               value="<?php echo $phone; ?>">
-                    </div>
-                    <div class="form-group input-group  input-control">
-                        <span class="input-group-addon">&nbsp;&nbsp;邮箱&nbsp;&nbsp;</span>
+                        <span class="input-group-addon">邮箱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                         <input type="text" maxlength="50" class="form-control" id="email" name="email"
                                placeholder="格式示例: abc@demo.com"
-                               value="<?php echo $email; ?>">
+                               value="<?= $email; ?>">
                     </div>
-                    <span class="span-phone" id="aphonecheck"></span>
+
+                    <?php if ($uid || \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type) { ?>
+                        <div class="form-group input-group  input-control">
+                            <span class="input-group-addon">用户名&nbsp;&nbsp;&nbsp;</span>
+                            <input type="text" class="form-control" id="uname" name="uname"
+                                   placeholder="大小写拉丁字母(a-z A-Z)、汉字、数字(0-9)或英文句号(.) 例: mingzi.xing"
+                                   onBlur="checkName(this.value);" value="<?= $uname; ?>"
+                                <?= \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type ? '' : 'disabled="disabled"'?>>
+                        </div>
+                        <span class="span-name" id="anamecheck"></span>
+                        <div class="form-group input-group  input-control">
+                            <span class="input-group-addon">姓名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input type="text" maxlength="11" class="form-control" id="nick" name="nick" placeholder="2-15个汉字"
+                                   value="<?= $nick; ?>"
+                                <?= \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type ? '' : 'disabled="disabled"'?>>
+                        </div>
+                        <div class="form-group input-group  input-control">
+                            <span class="input-group-addon">手机&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input type="text" maxlength="11" class="form-control" id="phone" name="phone" placeholder="11位数字"
+                                   value="<?= $phone; ?>"
+                                <?= \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type ? '' : 'disabled="disabled"'?>>
+                        </div>
+                        <span class="span-phone" id="aphonecheck"></span>
+                    <?php }?>
+
+                    <?php if (\Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type) { ?>
+                        <div class="form-group input-group  input-control">
+                            <span class="input-group-addon">密码&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input type="text" class="form-control" id="description" name="password" placeholder="仅供本地认证使用">
+                        </div>
+                    <?php }?>
 
                     <div class="form-group input-group  input-control">
-                        <span class="input-group-addon">&nbsp;&nbsp;描述&nbsp;&nbsp;</span>
-                        <input type="text" class="form-control" id="description" name="description" placeholder="描述可为空" value="<?php echo $description; ?>">
+                        <span class="input-group-addon">描述&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="描述可为空" value="<?= $description; ?>">
                     </div>
                     <div class="form-group input-group  input-control">
-                        <span class="input-group-addon">&nbsp;用户组</span>
+                        <span class="input-group-addon">用户组&nbsp;&nbsp;&nbsp;&nbsp;</span>
                         <select class="form-control chosen-select" id="group" name="group[]" data-placeholder="点击选择用户所属组"
                                 multiple>
                             <?php
@@ -69,32 +93,34 @@
                             ?>
                         </select>
                     </div>
+
                     <div class="form-group input-group  input-control">
                         <label>用户角色</label>
                         <label class="checkbox-inline">
-                            <input name="isadmin" type="radio" <?php echo $isadmin == '1' ? 'checked="checked"' : ''; ?> value="1"
-                                   title="拥有系统全部权限"> 管理员
-                        </label>
-                        <label class="checkbox-inline">
                             <input name="isadmin"
-                                   type="radio" <?php echo ($isadmin == '0' || $isadmin === null) ? 'checked="checked"' : ''; ?>
+                                   type="radio" <?= ($isadmin == '0' || $isadmin === null) ? 'checked="checked"' : '';?>
                                    value="0" title="根据配置获取系统权限"> 普通用户
                         </label>
+                        <label class="checkbox-inline">
+                            <input name="isadmin" type="radio" <?= $isadmin == '1' ? 'checked="checked"' : ''; ?> value="1"
+                                   title="拥有系统全部权限"> 管理员
+                        </label>
                     </div>
+
                     <?php if ($uid) { ?>
                         <div class="form-group input-group  input-control">
                             <label>用户状态</label>
                             <label class="checkbox-inline">
-                                <input id="status-normal" <?php echo $status == '0' ? 'checked="checked"' : ''; ?> name="status"
+                                <input id="status-normal" <?= $status == '0' ? 'checked="checked"' : ''; ?> name="status"
                                        type="radio" value="0"> 正常
                             </label>
                             <label class="checkbox-inline">
-                                <input id="status-ban" <?php echo $status == '1' ? 'checked="checked"' : ''; ?> name="status"
+                                <input id="status-ban" <?= $status == '1' ? 'checked="checked"' : ''; ?> name="status"
                                        type="radio" value="1"> 禁用
                             </label>
                         </div>
                     <?php } ?>
-                    <input type="hidden" name="uid" value="<?php echo $uid; ?>"/>
+                    <input type="hidden" name="uid" value="<?= $uid; ?>"/>
                 </form>
             </div>
             <div class="modal-footer">
@@ -119,6 +145,22 @@
 </body>
 <script>
     $(document).ready(function () {
+        $('#auth_type').change(function () {
+            var query_str = location.search;
+            var auth_type = $(this).children('option:selected').val();
+
+            var auth_type_index = query_str.indexOf('auth_type');
+            if (-1 != auth_type_index) {
+                query_str = query_str.substring(0, auth_type_index);
+                query_str = ('?' == query_str ? '' : query_str);
+            }
+            if (query_str.lastIndexOf('&') == query_str.length - 1) {
+                query_str = query_str.substr(0, query_str.length - 1);
+            }
+
+            location.href = url("/user/editUserInfo") + query_str + (query_str ? '&' : '?') + 'auth_type=' + auth_type;
+        });
+
         $('#cancel').click(function () {
             indexUrl = '<?=APP_ADMIN_PATH?>/user/index';
             jumpUrl(indexUrl);
@@ -126,26 +168,30 @@
 
         $('#save').click(function () {
             var uname = $('#uname'), nick = $('#nick'), phone = $('#phone'), email = $('#email'), description = $('#description');
-            if (!uname.val().trim()) {
-                alert('请填写用户名');
-                uname.focus();
-                return;
+
+            if (<?= \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL ?> == $('#auth_type').children('option:selected').val()) {
+                if (!uname.val().trim()) {
+                    alert('请填写用户名');
+                    uname.focus();
+                    return;
+                }
+                if (!nick.val().trim()) {
+                    alert('请填写姓名');
+                    nick.focus();
+                    return;
+                }
+                if (!phone.val().trim()) {
+                    alert('请填写手机号');
+                    phone.focus();
+                    return;
+                }
+                if (!/^1\d{10}$/.test(phone.val().trim())) {
+                    alert('请填写正确的手机号');
+                    phone.focus();
+                    return;
+                }
             }
-            if (!nick.val().trim()) {
-                alert('请填写姓名');
-                nick.focus();
-                return;
-            }
-            if (!phone.val().trim()) {
-                alert('请填写手机号');
-                phone.focus();
-                return;
-            }
-            if (!/^1\d{10}$/.test(phone.val().trim())) {
-                alert('请填写正确的手机号');
-                phone.focus();
-                return;
-            }
+
             if (!email.val().trim()) {
                 alert('请填写邮箱');
                 email.focus();
@@ -154,7 +200,7 @@
             $.ajax({
                 cache: true,
                 type: "POST",
-                url: url("/user/saveUserInfo/<?php echo isset($uid) ? '?uid=' . $uid : ''; ?>"),
+                url: url("/user/saveUserInfo/<?= isset($uid) ? '?uid=' . $uid : ''; ?>"),
                 data: $('#userform').serialize(),
                 dataType: 'json',
                 error: function (data) {
@@ -184,7 +230,9 @@
 
     // 检查用户名是否存在
     function checkName(value) {
-        if ('<?php echo $uname; ?>' == value) return;
+        if ('<?= $uname; ?>' == value) {
+            return;
+        }
         $.get(url("/user/checkNameExist"), {
                 name: value
             },

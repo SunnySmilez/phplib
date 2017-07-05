@@ -14,6 +14,6 @@ class Info extends Abstraction {
         $message['retmsg']      = $request->getException()?$request->getException()->getMessage():\S\Config::confError('common.succ.msg');
 
         $message = array_merge($this->getCommon(), $message, \S\Log\Context::getInfo());
-        return json_encode($message, JSON_UNESCAPED_UNICODE);
+        return $message;
     }
 }

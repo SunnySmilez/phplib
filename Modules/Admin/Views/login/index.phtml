@@ -81,7 +81,7 @@
 
             $.post("<?= APP_ADMIN_PATH; ?>/login/login", {
                     username: $username.val(),
-                    password: $password.val()
+                    password: $password.val(),
                 },
                 function (data) {
                     if (data.retcode == 2000000) {
