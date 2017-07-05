@@ -66,14 +66,14 @@
                                 <?= \Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type ? '' : 'disabled="disabled"'?>>
                         </div>
                         <span class="span-phone" id="aphonecheck"></span>
-                    <?}?>
+                    <?php }?>
 
                     <?php if (\Modules\Admin\Model\Service\User::AUTH_TYPE_LOCAL == $auth_type) { ?>
                         <div class="form-group input-group  input-control">
                             <span class="input-group-addon">密码&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             <input type="text" class="form-control" id="description" name="password" placeholder="仅供本地认证使用">
                         </div>
-                    <?}?>
+                    <?php }?>
 
                     <div class="form-group input-group  input-control">
                         <span class="input-group-addon">描述&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
