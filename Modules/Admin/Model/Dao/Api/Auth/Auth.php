@@ -31,7 +31,7 @@ class Auth {
         $params = array(
             'email' => $email,
         );
-        $token = \S\Config::confSecurity('api.auth.token');  //todo 如何存放
+        $token = \S\Config::confSecurity('api.auth.token');
 
         $resp_data = self::_request(self::PATH_USER . '?token=' . $token, $params);
 
