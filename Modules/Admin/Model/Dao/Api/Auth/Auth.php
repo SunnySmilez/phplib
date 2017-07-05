@@ -11,6 +11,7 @@ use Base\Exception\Dao as Exception;
 class Auth {
 
     const PATH_AUTH = "api/auth";
+    const PATH_USER = "api/user";
 
     const ERR_CODE_SUCC = '2000000';
 
@@ -32,7 +33,7 @@ class Auth {
         );
         $token = \S\Config::confSecurity('api.auth.token');  //todo 如何存放
 
-        $resp_data = self::_request(self::PATH_AUTH . '?token=' . $token, $params);
+        $resp_data = self::_request(self::PATH_USER . '?token=' . $token, $params);
 
         return $resp_data['user_info'];
     }
