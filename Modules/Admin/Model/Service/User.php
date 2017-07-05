@@ -22,9 +22,15 @@ class User {
         $data_user = new DataUser();
 
         if (self::AUTH_TYPE_REMOTE_AUTH == $auth_type) {
-            $email = $user_info['email'];
+            $email          = $user_info['email'];
+            $auth_user_info = $data_user->getUserInfoFromAuth($email);
+            $detail         = array(
+                'uname' => $email,
+                'nick'  => $auth_user_info['name'],
+                'phone' => $auth_user_info['mobile'],
+            );
 
-            $user_info = array_merge($user_info, $data_user->getUserInfoFromAuth($email));
+            $user_info = array_merge($user_info, $detail);
         } else if ($user_info['password']) {
             $salt     = crc32($user_info['uname']);
             $password = self::_getEncryptPassword($user_info['password'], $salt);
@@ -110,8 +116,8 @@ class User {
      * @return bool
      */
     private static function _sendAuthMail($name, $email, $otp_secret) {
-        $company = "jrmf360";
-        $otp_url = sprintf("otpauth://totp/%s:%s?secret=%s&issuer=%s", $company, $name, $otp_secret, $company);
+        $company                 = "jrmf360";
+        $otp_url                 = sprintf("otpauth://totp/%s:%s?secret=%s&issuer=%s", $company, $name, $otp_secret, $company);
         $base64_otp              = self::_getBase64QRCode($otp_url);
         $base64_ios_download     = self::_getBase64QRCode('https://itunes.apple.com/cn/app/google-authenticator/id388497605');
         $base64_android_download = self::_getBase64QRCode(ADMIN_STATIC_PATH . '/build/app/google_authenticator_4.60.apk');
@@ -130,7 +136,7 @@ class User {
             "host" => 'imap.exmail.qq.com',
             "port" => '25',
             "user" => 'mfsa@jrmf360.com',
-            "pwd" =>  'Yunwei@123',
+            "pwd"  => 'Yunwei@123',
             "nick" => 'otp密钥信息',
         );
 
