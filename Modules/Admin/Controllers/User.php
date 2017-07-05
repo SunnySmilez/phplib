@@ -104,7 +104,7 @@ class User extends Base {
             }
 
             $curr_user_info = $data_user->getUserInfoById($uid);
-            if (($curr_user_info && $curr_user_info['uname'] != $uname) || (!$curr_user_info && $data_user->isExistsByUserName($uname))) {
+            if (($curr_user_info && $curr_user_info['uname'] != $uname || !$curr_user_info) && $data_user->isExistsByUserName($uname)) {
                 $error_config = \S\Config::confError('admin.user_already_exists');
                 $msg          = sprintf($error_config['msg'], $uname);
                 throw new Exception($msg, $error_config['retcode']);
