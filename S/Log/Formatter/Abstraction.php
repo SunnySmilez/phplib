@@ -5,23 +5,33 @@ abstract class Abstraction {
 
     protected function getCommon() {
         if (\Core\Env::isCli()) {
-            $uri    = str_replace('\\', '_', trim(\Core\Env::getCliClass(), '\\')) ?: \S\Request::server('argv', array())[1];
-            $params = array_slice(\S\Request::server('argv', array()), 2) ?: array();
+            $optind   = null;
+            $opts     = getopt('c:m:a:', [], $optind);
+            $pos_args = array_slice(\S\Request::server('argv', array()), $optind);
+
+            $module     = $opts['m'] ?: 'Index';
+            $controller = $opts['c'];
+            $action     = $opts['a'] ?: 'Index';
+
+            $params = array();
+            foreach ($pos_args as $param_str) {
+                list($key, $val) = explode('=', $param_str);
+                $params[$key] = $val;
+            }
+
+            $uri    = ('Index' == $module ? '' : $module . '_') . $controller . '::' . $action;
         } else {
-            $module_name = \Core\Env::getModuleName(true);
-            $uri         = ($module_name === 'Index' ? "" : $module_name . "_") . \Core\Env::getControllerName(true);
-            $params      = $_REQUEST ?: array();
+            $uri    = \S\Request::server('PATH_INFO');
+            $params = $_REQUEST ?: array();
         }
 
         $common = array(
-            'app'       => APP_NAME,
             'date'      => date("Y-m-d H:i:s"),
-            'x_rid'     => \S\Request::server('x-rid') ?: null,
+            'x_rid'     => \S\Request::server('x-rid', null),
             'server_ip' => \S\Util\Ip::getServerIp(),
             'client_ip' => \S\Util\Ip::getClientIp(),
             'uri'       => $uri,
-            'params'    => json_encode($params),
-            'level'     => strtolower(end(explode("\\", get_class($this)))),
+            'params'    => $params,
         );
         $common = array_merge($common, \S\Log\Context::getCommonInfo());
 

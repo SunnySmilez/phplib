@@ -1,6 +1,7 @@
 <?php
+namespace Modules\Admin\Plugin;
 
-class Plugin_Admin extends \Base\Plugin\Base {
+class Admin extends \Base\Plugin\Base {
 
     public function dispatchLoopStartup(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response) {
         ini_set('session.name', APP_NAME);
@@ -19,7 +20,7 @@ class Plugin_Admin extends \Base\Plugin\Base {
         session_start();
 
         //注册记录admin访问日志
-        register_shutdown_function(array(new Modules\Admin\Model\Data\Sysconfig\Visitlog(), 'add'));
+        register_shutdown_function(array(new \Modules\Admin\Model\Data\Sysconfig\Visitlog(), 'add'));
     }
 
     public function preDispatch(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response) {

@@ -78,7 +78,7 @@ class Mysql {
     /**
      * 配置项数组可用key值
      */
-    private static $config_keys = array('host', 'port', 'dbname', 'username', 'password', '*encoding', '*pconnect', '*charset', '*timeout');
+    private static $_config_keys = array('host', 'port', 'dbname', 'username', 'password', '*encoding', '*pconnect', '*charset', '*timeout');
 
     /**
      * @var string
@@ -159,16 +159,16 @@ class Mysql {
      * select *|col1.col2... from $table where..order by...limit...
      * return all rows
      *
-     * @param string $table  表名
-     * @param array  $params where参数, kv格式
-     * @param array  $cols   select列名集合
-     * @param array  $orders order by参数, kv格式
-     *                       示例:
-     *                       array(
+     * @param string $table     表名
+     * @param array  $params    where参数, kv格式
+     * @param array  $cols      select列名集合
+     * @param array  $orders    order by参数, kv格式
+     *                          示例:
+     *                          array(
      *                          'col' => 'asc',
-     *                       )
-     * @param int    $limit 查询条数
-     * @param int    $style 结果格式, 默认: 列名-值 格式
+     *                          )
+     * @param int    $limit     查询条数
+     * @param int    $style     结果格式, 默认: 列名-值 格式
      *
      * @return array
      */
@@ -179,7 +179,7 @@ class Mysql {
         return $stmt ? $stmt->fetchAll($style) : false;
     }
 
-    public function qsql($sql, array $params = array(), $style = \PDO::FETCH_ASSOC) {
+    public function qSql($sql, array $params = array(), $style = \PDO::FETCH_ASSOC) {
         $stmt = $this->execute($sql, $params);
 
         return $stmt ? $stmt->fetchAll($style) : false;
@@ -198,14 +198,14 @@ class Mysql {
      *
      * @return array
      */
-    public function queryone($table, array $params, array $cols = array(), array $orders = array(), $limit = 0, $style = \PDO::FETCH_ASSOC) {
+    public function queryOne($table, array $params, array $cols = array(), array $orders = array(), $limit = 0, $style = \PDO::FETCH_ASSOC) {
         $sql  = $this->arrayToSql($table, $params, $cols, $orders, $limit);
         $stmt = $this->execute($sql['sql'], $sql['param']);
 
         return $stmt ? $stmt->fetch($style) : false;
     }
 
-    public function qsqlone($sql, array $params = array(), $style = \PDO::FETCH_ASSOC) {
+    public function qSqlOne($sql, array $params = array(), $style = \PDO::FETCH_ASSOC) {
         $stmt = $this->execute($sql, $params);
 
         return $stmt ? $stmt->fetch($style) : false;
@@ -224,7 +224,7 @@ class Mysql {
      *
      * @return array|bool
      */
-    public function querycount($table, array $params, array $cols = array(), array $orders = array(), $limit = 0, $style = \PDO::FETCH_ASSOC) {
+    public function queryCount($table, array $params, array $cols = array(), array $orders = array(), $limit = 0, $style = \PDO::FETCH_ASSOC) {
         $sql = $this->arrayToSql($table, $params, $cols, $orders, $limit);
         $sql = preg_replace('/^\s*SELECT\s+/i', 'SELECT SQL_CALC_FOUND_ROWS ', $sql);
 
@@ -252,7 +252,7 @@ class Mysql {
         return $stmt ? current($stmt->fetch(\PDO::FETCH_ASSOC)) : false;
     }
 
-    public function querysum($table, array $params, $sum_col) {
+    public function querySum($table, array $params, $sum_col) {
         $where_info = $this->_conditionToSqlInfo($params);
         $sql        = "SELECT sum($sum_col) FROM {$table} WHERE {$where_info['where']}";
         $stmt       = $this->execute($sql, $where_info['param']);
@@ -272,7 +272,7 @@ class Mysql {
      *
      * @return array|bool
      */
-    public function querykey($table, $key, $prefix, array $params, array $cols = array(), array $orders = array()) {
+    public function queryKey($table, $key, $prefix, array $params, array $cols = array(), array $orders = array()) {
         $sql = $this->arrayToSql($table, $params, $cols, $orders);
 
         $stmt = $this->execute($sql['sql'], $sql['param']);
@@ -307,7 +307,7 @@ class Mysql {
      *
      * @return array|bool
      */
-    public function querykv($table, $key, $value, $params = array(), array $orders = array(), $limit = 0) {
+    public function queryKv($table, $key, $value, $params = array(), array $orders = array(), $limit = 0) {
         $is_value_array = is_array($value);
         if ($key) {
             $cols = $is_value_array ? array_merge($value, array($key)) : array($key, $value);
@@ -343,7 +343,7 @@ class Mysql {
         return $data;
     }
 
-    public function qsqlkv($sql, $key, $value, $params = array()) {
+    public function qSqlKv($sql, $key, $value, $params = array()) {
         $stmt = $this->execute($sql, array_values($params));
         if (!$stmt) return false;
 
@@ -464,7 +464,7 @@ class Mysql {
             throw new \S\Exception('data is not an array or empty:' . __LINE__, self::PARAMETER_IS_EMPTY);
         }
 
-        $set_sql   = $this->_updateToSqlinfo($data);
+        $set_sql   = $this->_updateToSqlInfo($data);
         $where_sql = $this->_conditionToSqlInfo($condition);
 
         $sql = "UPDATE `{$table}` SET {$set_sql['field']} WHERE {$where_sql['where']}";
@@ -510,48 +510,37 @@ class Mysql {
      *
      * @param       $sql
      * @param array $params
-     * @param bool  $rowcount 是否返回受影响的行数
+     * @param bool  $row_count 是否返回受影响的行数
      *
      * @return bool|\PDOStatement
      * @throws \S\Exception
      */
-    public function execute($sql, array $params = array(), $rowcount = false) {
+    public function execute($sql, array $params = array(), $row_count = false) {
         if (\Core\Env::getEnvName() !== APP_ENVIRON_PRODUCT) {
             $this->sqlDebug($sql, $params);
         }
 
-        for ($i = 0; $i < 2; $i++) {
-            $mode = $this->getDbMode($sql);
-            /* @var $stmt \PDOStatement */
-            try {
-                $stmt = $this->getPdo($mode)->prepare($sql);
-                Timelog::instance()->resetTime();
-                if ($params) {
-                    $result = $stmt->execute($params);
-                } else {
-                    $result = $stmt->execute();
-                }
-            } catch (\PDOException $e) {
-                //如果在[CLI]模式下链接断开, 清除会话并重新连接
-                if (\Core\Env::isCli() && stripos('MySQL server has gone away', $e->getMessage()) !== false) {
-                    $this->close();
-
-                    if ($i < 1) {
-                        $message['exception'] = $e;
-                        \S\Log\Logger::getInstance()->warning($message);
-
-                        continue;
-                    }
-                }
-                throw new \S\Exception($e->getMessage(), '3001' . $e->getCode());
+        $mode = $this->getDbMode($sql);
+        /* @var $stmt \PDOStatement */
+        try {
+            $stmt = $this->getPdo($mode)->prepare($sql);
+            Timelog::instance()->resetTime();
+            if ($params) {
+                $return = $stmt->execute($params);
+            } else {
+                $return = $stmt->execute();
             }
-
-            $this->_setStrace($mode, __FUNCTION__, $sql);
-
-            return $result ? ($rowcount ? $stmt->rowCount() : $stmt) : false;
+        } catch (\PDOException $e) {
+            //如果在[CLI]模式下链接断开,清除会话
+            if (\Core\Env::isCli() && stripos('MySQL server has gone away', $e->getMessage()) !== false) {
+                $this->close();
+            }
+            throw new \S\Exception($e->getMessage(), '3001' . $e->getCode());
         }
 
-        return false;
+        $this->_setStrace($mode, __FUNCTION__, $sql);
+
+        return $return ? ($row_count ? $stmt->rowCount() : $stmt) : false;
     }
 
     /**
@@ -639,8 +628,8 @@ class Mysql {
             $debug_sql = substr_replace($debug_sql, $param, strpos($debug_sql, "?"), 1);
         }
 
-        if (!\Core\Env::isProductEnv() && \Core\Env::getModuleName() != "Admin") {
-            if(!is_dir('/data1/logs/' . APP_NAME)){
+        if (!\Core\Env::isProductEnv() && 0 !== strpos(\S\Request::server('PATH_INFO'), '/Admin')) {
+            if (!is_dir('/data1/logs/' . APP_NAME)) {
                 mkdir('/data1/logs/' . APP_NAME, 0777, true);
             }
             file_put_contents('/data1/logs/' . APP_NAME . '/sql.log', date('Y-m-d H:i:s') . ' | ' . \S\Request::server('PATH_INFO') .
@@ -684,12 +673,12 @@ class Mysql {
      * @throws \S\Exception
      */
     protected function arrayToSql($table, array $params, array $cols, array $orders = array(), $limit = 0) {
-        $strcols = $this->arrayToFieldString($cols);
+        $str_cols = $this->arrayToFieldString($cols);
         if (!empty($params)) {
             $where_info = $this->_conditionToSqlInfo($params);
-            $sql        = "SELECT {$strcols} FROM {$table} WHERE {$where_info['where']}";
+            $sql        = "SELECT {$str_cols} FROM {$table} WHERE {$where_info['where']}";
         } else {
-            $sql = "SELECT {$strcols} FROM {$table}";
+            $sql = "SELECT {$str_cols} FROM {$table}";
         }
 
         $sql .= $this->arrayToOrderString($orders);
@@ -717,12 +706,12 @@ class Mysql {
     protected function arrayToOrderString(array $orders) {
         $sql = '';
         if (!empty($orders)) {
-            $sql         = ' ORDER BY ';
-            $orderstring = array();
+            $sql       = ' ORDER BY ';
+            $order_str = array();
             foreach ($orders as $col => $order) {
-                $orderstring[] = "`{$col}` {$order}";
+                $order_str[] = "`{$col}` {$order}";
             }
-            $sql .= join(',', $orderstring);
+            $sql .= join(',', $order_str);
         }
 
         return $sql;
@@ -843,7 +832,7 @@ class Mysql {
      *
      * @return array
      */
-    private function _updateToSqlinfo(array $data) {
+    private function _updateToSqlInfo(array $data) {
         $values = array_values($data);
         $fields = implode('`=?,`', array_keys($data));
 
@@ -858,7 +847,7 @@ class Mysql {
      * @throws \S\Exception
      */
     private function _checkConfigFormat($config) {
-        $valid_keys = array_fill_keys(self::$config_keys, 0);
+        $valid_keys = array_fill_keys(self::$_config_keys, 0);
         foreach ($config as $k => $v) {
             //检查是否是必选或者可选参数。可选参数以*号开头
             if (!isset($valid_keys[$k]) && !isset($valid_keys["*$k"])) {
@@ -950,7 +939,6 @@ class Mysql {
         Timelog::instance()->log('mysql', array(
             'class'     => __CLASS__,
             'method'    => $function,
-            'idc'       => isset($config['idc']) ? $config['idc'] : \Core\Env::getIdc(),
             'resource'  => "{$config['host']}:{$config['port']}:{$config['dbname']}",
             'extension' => $sql,
         ));

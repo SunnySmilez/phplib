@@ -146,7 +146,6 @@ class Timelog {
 
         $log['exectime'] = round($log['exectime']);
         $log['type']     = $res_type;
-        $log['idc']      = \Core\Env::getIdc();
 
         $log_filter = array();
         foreach ($this->_log_item as $value) {

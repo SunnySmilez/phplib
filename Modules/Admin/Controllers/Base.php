@@ -36,7 +36,7 @@ abstract class Base extends Action {
 
         $this->buildMenu();
 
-        $ext      = \Yaf\Application::app()->getConfig()->get('yaf.view.ext');
+        $ext      = \Yaf\Application::app()->getConfig()->get('application.view.ext');
         $tpl_path = strtolower($this->getRequest()->controller) . DIRECTORY_SEPARATOR . strtolower($this->getRequest()->action) . '.' . $ext;
         $this->_view->display($tpl_path, $tpl_vars);
 
@@ -50,7 +50,7 @@ abstract class Base extends Action {
         }
 
         if (!$tpl) {
-            $ext = \Yaf\Application::app()->getConfig()->get('yaf.view.ext');
+            $ext = \Yaf\Application::app()->getConfig()->get('application.view.ext');
             $tpl = strtolower($this->getRequest()->getControllerName()) . DIRECTORY_SEPARATOR .
                 strtolower($this->getRequest()->getActionName()) . "." . $ext;
         }
@@ -59,6 +59,16 @@ abstract class Base extends Action {
         \Yaf\Dispatcher::getInstance()->autoRender(true);
 
         return $ret;
+    }
+
+    protected function render($tpl = '', array $response = null) {
+        if (\S\Response::getFormatter() == \S\Response::FORMAT_PLAIN) {
+            \S\Response::displayPlain($this->response);
+        } elseif (\S\Response::getFormatter() == \S\Response::FORMAT_JSON) {
+            \S\Response::displayJson($this->response);
+        } else {
+            $this->displayView($this->response);
+        }
     }
 
     /**
@@ -70,7 +80,7 @@ abstract class Base extends Action {
         $is_admin = \S\Request::session('isadmin');
         $menu     = (new DataMenu())->getNavMenu($is_admin);
 
-        $ext      = \Yaf\Application::app()->getConfig()->get('yaf.view.ext');
+        $ext      = \Yaf\Application::app()->getConfig()->get('application.view.ext');
         $menuview = $this->_view->render(ADMIN_BASE_TPL_PATH . 'inc/menu.' . $ext, array('menu' => $menu));
         $this->_view->assign('menuview', $menuview);
 

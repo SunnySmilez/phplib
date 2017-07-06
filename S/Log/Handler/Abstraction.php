@@ -3,15 +3,12 @@ namespace S\Log\Handler;
 
 abstract class Abstraction {
 
-    /**
-     * 写日志具体方法
-     *
-     * @param $level
-     * @param $message
-     * @param $to_path
-     * @return mixed
-     */
-    abstract public function write($level, $message, $to_path);
+    public function handle($level, $message, $to_path) {
+        $path = $this->getPath($level, $to_path);
+        $this->write($path, $message);
+
+        return true;
+    }
 
     /**
      * 获取存储的关键key
@@ -19,29 +16,41 @@ abstract class Abstraction {
      *
      * @param $level
      * @param $to_path
+     *
      * @return string
      */
-    protected function getPath($level, $to_path){
+    protected function getPath($level, $to_path) {
         $level = strtolower($level);
-        if(!$to_path){
-            if(\Core\Env::isCli()){
-                $cli_classname = \Core\Env::getCliClass();
-                $cli_classname = strtolower(str_replace('\\', '/', $cli_classname));
-                $key = $cli_classname . "/" . date("Ym") . "/" . $level . "." . date("Ymd") . ".log";
-            }else{
-                $module_name = strtolower(\Core\Env::getModuleName(true));
-                if ($module_name === 'index') {
-                    $module_name = "";
-                }
-                $controller_name = strtolower(\Core\Env::getControllerName(true));
-                $controller_name = strtolower(str_replace('_', '/', $controller_name));
-                $key = $module_name . "/" . $controller_name . "/" . date("Ym") . "/" . $level . "." . date("Ymd") . ".log";
+
+        if ($to_path) {
+            $key = $to_path;
+        } else {
+            if (\Core\Env::isCli()) {
+                $optind = null;
+                $opts   = getopt('c:m:a:', [], $optind);
+
+                $module        = $opts['m'] ?: 'Index';
+                $cli_classname = $opts['c'];
+                $action        = $opts['a'] ?: 'Index';
+
+                $key = ('index' == strtolower($module) ? '' : $module . '/') . str_replace('_', '/', $cli_classname) . '/' . $action;
+            } else {
+                $key = trim(\S\Request::server('PATH_INFO'), '/');
             }
-        }else{
-            $key = $to_path."/".date("Ym")."/".$level.".".date("Ymd").".log";;
         }
+        $key .= "/" . date("Ym") . "/" . $level . "." . date("Ymd") . ".log";
 
         return $key;
     }
+
+    /**
+     * 写日志具体方法
+     *
+     * @param $key
+     * @param $message
+     *
+     * @return mixed
+     */
+    abstract protected function write($key, $message);
 
 }
