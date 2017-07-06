@@ -26,6 +26,7 @@ web框架（如yaf）解决了请求流转和分发的问题，将请求生命�
 
 #### 构建新项目
 > 新构建一个名为demo，域名为demo.com的项目
+
 1. 下载phplib，下载phplib-template（构建工具）
 
 > ${dev-path} 为本地开发目录
@@ -34,14 +35,14 @@ cd ${dev-path}
 git clone https://github.com/ifintech/phplib.git
 git clone https://github.com/ifintech/phplib-template.git //构建工具
 ```
-1. 构建
+2. 构建
 
 ```shell
 docker run -itd --name demo -p 80:80 -v /${dev-path}/phplib-template:/data1/htdocs/phplib-template -v /${dev-path}/phplib:/data1/htdocs/phplib -v /${dev-path}/demo:/data1/htdocs/demo ifintech/php7
 docker exec -it demo /usr/local/php/bin/php /data1/htdocs/phplib-template/build/cg.php demo demo.com
 ```
 
-1. 测试运行
+3. 测试运行
 
 ```shell
 curl -v http://127.0.0.1/ -H 'Host:demo.com'
@@ -49,6 +50,7 @@ curl -v http://127.0.0.1/ -H 'Host:demo.com'
 
 #### 构建已存在项目
 > 当别人有个demo的项目，我需要介入开发，项目为demo，域名为demo.com
+
 1. 下载phplib和项目demo到本地开发目录${dev-path}
 
 ```bash
@@ -57,14 +59,14 @@ git clone https://github.com/ifintech/phplib.git
 git clone https://github.com/ifintech/demo.git
 ```
 
-1. 构建项目，初始化数据库等操作
+2. 构建项目，初始化数据库等操作
 
 ```shell
 docker run -itd --name mydemo -p 80:80 -v /${dev-path}/phplib:/data1/htdocs/phplib -v /${dev-path}/demo:/data1/htdocs/demo ifintech/phplib
 docker exec -it demo /data1/htdocs/demo/build/build.sh
 ```
 
-1. 测试运行
+3. 测试运行
 
 ```shell
 curl -v http://127.0.0.1/ -H 'Host:demo.com'
@@ -88,3 +90,29 @@ curl -v http://127.0.0.1/ -H 'Host:demo.com'
 
 
 ## 模块
+> 模式是具有完整独立逻辑的子系统，有自己的controller，model，view
+
+已有公共模块  
+
+1. 管理系统模块
+  - 用户及角色管理
+  - 权限管理及登录
+  - 菜单管理
+  - 系统功能 （行为记录 安全控制）
+  - 任务（任务池、领取任务、开始任务、完成任务、任务统计分析）
+  - 消息通知（对接钉钉）
+  - 审批流（发起审批，在钉钉完成审批流程，获取回调）
+  
+2. 微信模块  
+  - oauth
+  - 消息发送和消息接受
+  - 客服
+  
+  
+#### 模块启用
+
+通过phplib-template初始化  
+
+/usr/local/php/bin/php /data1/htdocs/phplib-template/cg.php demo demo.com Admin,Wechat
+
+#### 模块集成开发
