@@ -131,16 +131,7 @@ class User {
             'base64_android_download' => $base64_android_download,
         ));
 
-        //todo 在admin bootstrap中定义
-        $config = array(
-            "host" => 'imap.exmail.qq.com',
-            "port" => '25',
-            "user" => 'mfsa@jrmf360.com',
-            "pwd"  => 'Yunwei@123',
-            "nick" => 'otp密钥信息',
-        );
-
-        return (new \S\Msg\Mail($config))->send($email, '开通统一认证账号【重要】', $view);
+        return (new \S\Msg\Mail('admin.otp'))->send($email, '开通统一认证账号【重要】', $view);
     }
 
     private static function _getBase64QRCode($url) {
