@@ -5,6 +5,7 @@ namespace Base;
  * job的bootstrap
  * Class JobBootstrap
  * @package Base
+ * @deprecated
  */
 class JobBootstrap extends \Base\Bootstrap {
     /**
@@ -12,7 +13,7 @@ class JobBootstrap extends \Base\Bootstrap {
      * 注册YAF的localnamespace和map
      */
     public function _initBaseLoader() {
-        parent::_initBaseLoder();
+        parent::_initBaseLoader();
         \Core\Loader::register_autoloader(array('Jobs'));
     }
 }

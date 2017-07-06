@@ -6,6 +6,7 @@ use S\Crypt\Aes;
 use \S\Util\Genuid;
 
 class Ots {
+
     protected static $db = array();
     protected $table;
     protected $primary_key = array();
@@ -26,14 +27,17 @@ class Ots {
 
     public static function db($dbName) {
         if (!isset(self::$db[$dbName])) {
-            self::$db[$dbName] = new \S\Db\Ots($dbName);
+            self::$db[$dbName] = new \S\Db\Table(\S\Db\Table::TYPE_OTS, $dbName);
         }
+
         return self::$db[$dbName];
     }
 
     /**
      * 数据加密
+     *
      * @param $data
+     *
      * @return array|string
      * @throws \S\Exception
      */
@@ -56,12 +60,15 @@ class Ots {
                 }
             }
         }
+
         return $data;
     }
 
     /**
      * 数据解密
+     *
      * @param $data
+     *
      * @return array|string
      * @throws \S\Exception
      */
@@ -72,6 +79,7 @@ class Ots {
             if (8 > strlen($data)) {
                 return $data;
             }
+
             return Aes::decrypt(base64_decode($data), 'ots');
         }
 
@@ -88,22 +96,28 @@ class Ots {
                 }
             }
         }
+
         return $data;
     }
 
     /**
      * 把顺序的主键变为散列的
+     *
      * @param $id
+     *
      * @return string
      */
     public function getHashPrimary($id) {
         $prefix = substr(md5($id), 0, 4);
+
         return $prefix . '_' . $id;
     }
 
     /**
      * 给数据增加随机6位后缀
+     *
      * @param $data
+     *
      * @return string
      */
     public function addRandomSuffix($data) {
@@ -112,10 +126,13 @@ class Ots {
 
     /**
      * 删掉随机6位后缀
+     *
      * @param $data
+     *
      * @return string
      */
     public function delRandomSuffix($data) {
         return explode('_', $data)[0];
     }
+
 }

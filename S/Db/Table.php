@@ -118,6 +118,10 @@ use \S\Strace\Timelog as Timelog;
  */
 class Table {
 
+    const TYPE_OTS = 'ots';
+    const TYPE_HBASE = 'hbase';
+    const TYPE_HBASEREST = 'hbaserest';
+
     const NAME_DEFAULT = 'common';
 
     protected $type;
