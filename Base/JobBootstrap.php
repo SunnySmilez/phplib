@@ -5,6 +5,7 @@ namespace Base;
  * job的bootstrap
  * Class JobBootstrap
  * @package Base
+ * @deprecated
  */
 class JobBootstrap extends \Base\Bootstrap {
     /**
