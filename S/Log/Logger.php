@@ -79,6 +79,7 @@ class Logger {
         $obj_format = new $format;
         $message    = $obj_format->format($message);
         foreach ($this->_handlers as $handler) {
+            /** @var \S\Log\Handler\Abstraction $handler */
             $handler->write($levelName, $message, $to_path);
         }
 
