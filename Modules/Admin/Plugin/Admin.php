@@ -4,6 +4,10 @@ namespace Modules\Admin\Plugin;
 class Admin extends \Base\Plugin\Base {
 
     public function dispatchLoopStartup(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response) {
+        if (\Core\Env::isCli() || \S\Request::isFastCGIClientRequest()) {
+            return;
+        }
+
         ini_set('session.name', APP_NAME);
         ini_set('session.save_handler', 'redis');
 
@@ -25,6 +29,11 @@ class Admin extends \Base\Plugin\Base {
 
     public function preDispatch(\Yaf\Request_Abstract $request, \Yaf\Response_Abstract $response) {
         parent::preDispatch($request, $response);
+
+        if (\Core\Env::isCli() || \S\Request::isFastCGIClientRequest()) {
+            return;
+        }
+
         \Yaf\Dispatcher::getInstance()->autoRender(true);
     }
 
