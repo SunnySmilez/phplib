@@ -628,7 +628,7 @@ class Mysql {
             $debug_sql = substr_replace($debug_sql, $param, strpos($debug_sql, "?"), 1);
         }
 
-        if (!\Core\Env::isProductEnv() && 0 !== strpos(\S\Request::server('PATH_INFO'), '/Admin')) {
+        if (!\Core\Env::isProductEnv() && 0 !== strpos(\S\Request::server('PATH_INFO'), '/admin')) {
             if (!is_dir('/data1/logs/' . APP_NAME)) {
                 mkdir('/data1/logs/' . APP_NAME, 0777, true);
             }
