@@ -6,7 +6,7 @@ class Debug extends Abstraction {
     public function format(array $message) {
         $message = array_merge($this->getCommon(), $message);
 
-        return json_encode($message, JSON_UNESCAPED_UNICODE);
+        return $message;
     }
 
 }
