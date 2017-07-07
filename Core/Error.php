@@ -39,6 +39,11 @@ class Error {
         if (\Core\Env::isCli() && !\Core\Env::isPhpUnit()) {
             throw $e;
         }
+        if (\S\Request::isFastCGIClientRequest()) {
+            \S\Response::displayJson(array(), $e->getCode(), $e->getMessage());
+
+            return true;
+        }
 
         //开发环境下打印调试信息(不包括业务流程异常和参数校验异常)
         if (!\Core\Env::isProductEnv() &&

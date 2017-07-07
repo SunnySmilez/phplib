@@ -33,7 +33,7 @@ class Response {
         @header('Content-type: application/json');
         echo json_encode(
             array_merge(array(
-                'retcode' => $retcode ?: self::RET_CODE,
+                'retcode' => ('' === $retcode) ? self::RET_CODE : $retcode,
                 'msg'     => $msg ?: self::RET_MSG,
             ), $data)
         );
