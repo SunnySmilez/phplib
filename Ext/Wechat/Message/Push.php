@@ -379,7 +379,7 @@ class Push {
         $resp_xml = \Wechat\Util::toXML($data);
 
         //兼容模式｜安全模式
-        if (!($is_encrypt_mode = (\S\Request::get("msg_signature") ? true : false))) {
+        if (!\S\Request::get("msg_signature")) {
             return $resp_xml;
         }
 

@@ -12,7 +12,7 @@ use Base\Exception\Controller as Exception;
  */
 abstract class Message extends Abstraction {
 
-    protected $responseFormatter = \S\Response::FORMAT_PLAIN;
+    protected $response_formatter = \S\Response::FORMAT_PLAIN;
     /**
      * @var \Wechat\Message\Push
      */
