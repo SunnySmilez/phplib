@@ -26,12 +26,14 @@ abstract class Abstraction {
         }
 
         $common = array(
+            'app'       => APP_NAME,
             'date'      => date("Y-m-d H:i:s"),
             'x_rid'     => \S\Request::server('x-rid', null),
             'server_ip' => \S\Util\Ip::getServerIp(),
             'client_ip' => \S\Util\Ip::getClientIp(),
             'uri'       => $uri,
             'params'    => $params,
+            'level'     => strtolower(end(explode("\\", get_class($this)))),
         );
         $common = array_merge($common, \S\Log\Context::getCommonInfo());
 
