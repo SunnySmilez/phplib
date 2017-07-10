@@ -150,4 +150,14 @@ class Request {
 		$port   = self::server('SERVER_PORT') != '80' ? ':'.self::server('SERVER_PORT') : '';
 		return $scheme.self::server('SERVER_NAME').$port.self::server('REQUEST_URI');
 	}
+
+    /**
+     * 判断是否fastcgi客户端请求
+     *
+     * @return bool
+     */
+	public static function isFastCGIClientRequest() {
+	    return (false !== strpos(strtolower(\S\Request::server('SERVER_SOFTWARE')), 'fastcgiclient'));
+    }
+
 }

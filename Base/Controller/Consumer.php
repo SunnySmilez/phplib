@@ -21,7 +21,7 @@ abstract class Consumer extends \Yaf\Controller_Abstract {
         if ('127.0.0.1' != \S\Util\Ip::getClientIp()) {
             throw new \Yaf\Exception\LoadFailed\Controller('非本地请求');
         }
-        if (false === strpos(strtolower(\S\Request::server('GATEWAY_INTERFACE')), 'cgi')) {
+        if (!\S\Request::isFastCGIClientRequest()) {
             throw new \Yaf\Exception\LoadFailed\Controller('非cgi请求');
         }
     }
