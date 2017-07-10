@@ -50,7 +50,7 @@ class Error {
             $response['file']      = $e->getFile();
             $response['exception'] = $e;
 
-            $view                  = new \Yaf\View\Simple(PHPLIB . "/Base/View/");
+            $view                  = new \Yaf\View\Simple(PHPLIB . "/Base/Views/");
             $view->display('DevError.phtml', $response);
 
             return true;
