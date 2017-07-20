@@ -33,7 +33,7 @@ abstract class Abstraction {
         }
         $key .= "/" . date("Ym") . "/" . $level . "." . date("Ymd") . ".log";
 
-        return $key;
+        return strtolower($key);
     }
 
     /**
