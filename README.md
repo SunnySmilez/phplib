@@ -125,8 +125,8 @@ Code Generator Version 3.0.0
 1. 执行当前脚本需要root权限
 
 2. 执行命令示例
-   /usr/bin/php /data1/htdocs/phplib-template/cg.php 项目名称 域名      模块列表(多个模块用英文逗号分割)
-   /usr/bin/php /data1/htdocs/phplib-template/cg.php demo    demo.com admin,wechat
+   /usr/bin/php /data1/htdocs/phplib-template/cg.php 项目名称 域名         项目目标地址         模块列表(多个模块用英文逗号分割)
+   /usr/bin/php /data1/htdocs/phplib-template/cg.php demo    demo.com    /data1/htdocs/demo   admin,wechat
    
 3. 生成的项目代码目录位置 - /data1/htdocs/{项目名称}
 
