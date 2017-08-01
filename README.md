@@ -39,7 +39,7 @@ git clone https://github.com/ifintech/phplib-template.git //构建工具
 
 ```shell
 docker run -itd --name demo -p 80:80 -v /${dev-path}/phplib-template:/data1/htdocs/phplib-template -v /${dev-path}/phplib:/data1/htdocs/phplib -v /${dev-path}/demo:/data1/htdocs/demo ifintech/php7
-docker exec -it demo /usr/local/php/bin/php /data1/htdocs/phplib-template/build/cg.php demo demo.com
+docker exec -it demo /usr/local/php/bin/php /data1/htdocs/phplib-template/cg.php demo demo.com /data1/htdocs/demo admin,wechat
 ```
 
 3. 测试运行
@@ -113,7 +113,7 @@ curl -v http://127.0.0.1/ -H 'Host:demo.com'
 
 通过phplib-template初始化  
 
-/usr/local/php/bin/php /data1/htdocs/phplib-template/cg.php demo demo.com Admin,Wechat
+/usr/local/php/bin/php /data1/htdocs/phplib-template/cg.php demo demo.com /data1/htdocs/demo Admin,Wechat
 
 ```bash
 *******************************************************************************************
